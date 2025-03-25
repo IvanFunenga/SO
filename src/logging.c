@@ -9,14 +9,16 @@ void log_message(const char* format, ...) {
     strftime(timestamp, 20, "%Y-%m-%d %H:%M:%S", localtime(&now));
     
     va_list args;
-    va_start(args, format);
     
-    // Print to console
+    // First print to console
+    va_start(args, format);
     printf("[%s] ", timestamp);
     vprintf(format, args);
     printf("\n");
+    va_end(args);
     
-    // Print to log file
+    // Then print to log file (with fresh args)
+    va_start(args, format);
     FILE* log_file = fopen("DEIChain_log.txt", "a");
     if (log_file) {
         fprintf(log_file, "[%s] ", timestamp);
@@ -24,6 +26,5 @@ void log_message(const char* format, ...) {
         fprintf(log_file, "\n");
         fclose(log_file);
     }
-    
     va_end(args);
 }
