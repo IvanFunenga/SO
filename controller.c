@@ -11,6 +11,13 @@
 volatile sig_atomic_t shutdown_requested = 0;
 static pid_t miner_pid = -1;
 
+// Função para tratar o sinal SIGINT
+void handle_sigint(int sig) {
+    (void)sig;
+    shutdown_requested = 1;
+    log_message("INFO: Sinal SIGINT capturado. Encerrando...");
+}
+
 // Função para ler o arquivo de configuração
 void load_config(const char *filename, Config *config) {
     FILE* file = fopen(filename, "r");
@@ -19,7 +26,6 @@ void load_config(const char *filename, Config *config) {
         exit(EXIT_FAILURE);
     }
 
-    // Leitura dos valores com verificação de erro
     if (fscanf(file, "%d", &config->num_miners) != 1 ||
         fscanf(file, "%d", &config->pool_size) != 1 ||
         fscanf(file, "%d", &config->transactions_per_block) != 1 ||
@@ -31,24 +37,21 @@ void load_config(const char *filename, Config *config) {
     }
     fclose(file);
     
-    // Validação básica dos valores
     if (config->num_miners <= 0 || config->pool_size <= 0 || 
         config->transactions_per_block <= 0 || config->blockchain_blocks <= 0) {
         log_message("ERRO: Valores de configuração inválidos (devem ser positivos)");
         exit(EXIT_FAILURE);
     }
 
-    // Log das configurações lidas
     log_message("CONFIG: NUM_MINERS = %d", config->num_miners);
     log_message("CONFIG: POOL_SIZE = %d", config->pool_size);
     log_message("CONFIG: TRANSACTIONS_PER_BLOCK = %d", config->transactions_per_block);
     log_message("CONFIG: BLOCKCHAIN_BLOCKS = %d", config->blockchain_blocks);
 }
 
-
 void start_miner_process(int num_threads){
     log_message("INFO: Miner process started (PID: %d)", getpid());
-    init_miner(num_threads, 0, 0); // Transaction pool e transaction per block nulos de momento
+    init_miner(num_threads, 0, 0); // transaction_pool e transactions_per_block ainda não usados
     start_miner_threads();
     exit(EXIT_SUCCESS);
 }
@@ -56,21 +59,20 @@ void start_miner_process(int num_threads){
 void stop_miner_process(){
     stop_miner_threads();
     if (miner_pid > 0){
-        waitpid(miner_pid, NULL, 0);  // Espera o processo filho terminar
+        waitpid(miner_pid, NULL, 0);
         log_message("INFO: Miner process stopped");
     } 
 }
 
 int main() {
     Config config;
-    pid_t miner_pid;
     
-    // Inicializa sistema de logging
+    // Registar o handler para SIGINT
+    signal(SIGINT, handle_sigint);
+
     log_init("DEIChain_log.txt");
     load_config("config.cfg", &config);
-    
 
-    // Lógica para inicalizar o processo miner
     miner_pid = fork();
 
     if (miner_pid < 0){
@@ -78,14 +80,16 @@ int main() {
         exit(EXIT_FAILURE);
     } else if (miner_pid == 0){
         start_miner_process(config.num_miners);
-    }   
+    }
 
-    sleep(10);
+    // Loop principal: espera até que SIGINT seja capturado
+    while (!shutdown_requested) {
+        sleep(1); // Pode ser substituído por lógica útil
+    }
+
     stop_miner_process();
-
-
     log_message("INFO: System correctly shut down");
     log_close();
-    
+
     return 0;
 }

@@ -5,7 +5,7 @@ TARGET = controller
 CC = gcc
 
 # Flags de compilação
-CFLAGS = -Wall -Wextra -Wpedantic
+CFLAGS = -Wall -Wextra -Wpedantic -pthread
 
 # Arquivos fonte (agora inclui miner.c)
 SRCS = logging.c controller.c miner.c
