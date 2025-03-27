@@ -1,44 +1,24 @@
-# Compiler and flags
+# Nome do executável
+TARGET = controller
+
+# Compilador
 CC = gcc
-CFLAGS = -Wall -Wextra -std=c11 -g -pthread
-LDFLAGS = -lpthread
 
-# Source and object directories
-SRC_DIR = src
-OBJ_DIR = obj
+# Flags de compilação
+CFLAGS = -Wall -Wextra -Wpedantic
 
-# Target executables
-TARGETS = dei_chain miner
+# Arquivos fonte (agora inclui miner.c)
+SRCS = logging.c controller.c miner.c
+OBJS = $(SRCS:.c=.o)
 
-# Source files
-CONTROLLER_SRCS = $(SRC_DIR)/controller.c $(SRC_DIR)/shared_memory.c $(SRC_DIR)/ipc_utils.c $(SRC_DIR)/logging.c $(SRC_DIR)/miner.c
-MINER_SRCS = $(SRC_DIR)/miner.c $(SRC_DIR)/shared_memory.c $(SRC_DIR)/ipc_utils.c $(SRC_DIR)/logging.c
+# Regra padrão para compilar o executável
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
 
-# Object files
-CONTROLLER_OBJS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(CONTROLLER_SRCS))
-MINER_OBJS = $(patsubst $(SRC_DIR)/%.c,$(OBJ_DIR)/%.o,$(MINER_SRCS))
-
-# Default target
-all: $(TARGETS)
-
-# Main controller executable
-dei_chain: $(CONTROLLER_OBJS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
-
-# Miner executable
-miner: $(MINER_OBJS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
-
-# Pattern rule for object files
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
+# Regra para compilar arquivos .c em .o
+%.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Create object directory if it doesn't exist
-$(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
-
-# Clean up
+# Limpeza dos arquivos compilados
 clean:
-	rm -rf $(OBJ_DIR) $(TARGETS) DEIChain_log.txt
-
-.PHONY: all clean
+	rm -f $(OBJS) $(TARGET)
