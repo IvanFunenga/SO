@@ -1,0 +1,98 @@
+[2025-03-27 16:58:32] CONFIG: NUM_MINERS = 5
+[2025-03-27 16:58:32] CONFIG: POOL_SIZE = 50
+[2025-03-27 16:58:32] CONFIG: TRANSACTIONS_PER_BLOCK = 10
+[2025-03-27 16:58:32] CONFIG: BLOCKCHAIN_BLOCKS = 50000
+[2025-03-27 16:58:32] INFO: Miner process started (PID: 8334)
+[2025-03-27 16:58:32] INFO: Successfully created miner thread 0
+[2025-03-27 16:58:32] INFO: Successfully created miner thread 1
+[2025-03-27 16:58:32] INFO: Successfully created miner thread 2
+[2025-03-27 16:58:32] INFO: Successfully created miner thread 3
+[2025-03-27 16:58:32] INFO: Successfully created miner thread 4
+[2025-03-27 16:58:32] INFO: All threads were created!
+[2025-03-27 16:58:42] INFO: System correctly shut down
+[2025-03-27 16:59:53] CONFIG: NUM_MINERS = 5
+[2025-03-27 16:59:53] CONFIG: POOL_SIZE = 50
+[2025-03-27 16:59:53] CONFIG: TRANSACTIONS_PER_BLOCK = 10
+[2025-03-27 16:59:53] CONFIG: BLOCKCHAIN_BLOCKS = 50000
+[2025-03-27 16:59:53] INFO: Miner process started (PID: 8931)
+[2025-03-27 16:59:53] INFO: Successfully created miner thread 0
+[2025-03-27 16:59:53] INFO: Successfully created miner thread 1
+[2025-03-27 16:59:53] INFO: Successfully created miner thread 2
+[2025-03-27 16:59:53] INFO: Successfully created miner thread 3
+[2025-03-27 16:59:53] INFO: Successfully created miner thread 4
+[2025-03-27 16:59:53] INFO: All threads were created!
+[2025-03-27 17:00:03] INFO: System correctly shut down
+[2025-03-27 17:00:20] CONFIG: NUM_MINERS = 5
+[2025-03-27 17:00:20] CONFIG: POOL_SIZE = 50
+[2025-03-27 17:00:20] CONFIG: TRANSACTIONS_PER_BLOCK = 10
+[2025-03-27 17:00:20] CONFIG: BLOCKCHAIN_BLOCKS = 50000
+[2025-03-27 17:00:20] INFO: Miner process started (PID: 9226)
+[2025-03-27 17:00:20] INFO: Successfully created miner thread 0
+[2025-03-27 17:00:20] INFO: Successfully created miner thread 1
+[2025-03-27 17:00:20] INFO: Successfully created miner thread 2
+[2025-03-27 17:00:20] INFO: Successfully created miner thread 3
+[2025-03-27 17:00:20] INFO: Successfully created miner thread 4
+[2025-03-27 17:00:20] INFO: All threads were created!
+[2025-03-27 17:00:30] INFO: System correctly shut down
+[2025-03-27 17:00:43] CONFIG: NUM_MINERS = 5
+[2025-03-27 17:00:43] CONFIG: POOL_SIZE = 50
+[2025-03-27 17:00:43] CONFIG: TRANSACTIONS_PER_BLOCK = 10
+[2025-03-27 17:00:43] CONFIG: BLOCKCHAIN_BLOCKS = 50000
+[2025-03-27 17:00:43] INFO: Miner process started (PID: 9475)
+[2025-03-27 17:00:43] INFO: Successfully created miner thread 0
+[2025-03-27 17:00:43] INFO: Successfully created miner thread 1
+[2025-03-27 17:00:43] INFO: Successfully created miner thread 2
+[2025-03-27 17:00:43] INFO: Successfully created miner thread 3
+[2025-03-27 17:00:43] INFO: Successfully created miner thread 4
+[2025-03-27 17:00:43] INFO: All threads were created!
+[2025-03-27 17:00:53] INFO: System correctly shut down
+[2025-03-27 17:02:10] CONFIG: NUM_MINERS = 5
+[2025-03-27 17:02:10] CONFIG: POOL_SIZE = 50
+[2025-03-27 17:02:10] CONFIG: TRANSACTIONS_PER_BLOCK = 10
+[2025-03-27 17:02:10] CONFIG: BLOCKCHAIN_BLOCKS = 50000
+[2025-03-27 17:02:10] INFO: Miner process started (PID: 10137)
+[2025-03-27 17:02:10] INFO: Successfully created miner thread 0
+[2025-03-27 17:02:10] INFO: Successfully created miner thread 1
+[2025-03-27 17:02:10] INFO: Successfully created miner thread 2
+[2025-03-27 17:02:10] INFO: Successfully created miner thread 3
+[2025-03-27 17:02:10] INFO: Successfully created miner thread 4
+[2025-03-27 17:02:10] INFO: All threads were created!
+[2025-03-27 17:02:20] INFO: System correctly shut down
+[2025-03-27 17:02:52] CONFIG: NUM_MINERS = 5
+[2025-03-27 17:02:52] CONFIG: POOL_SIZE = 50
+[2025-03-27 17:02:52] CONFIG: TRANSACTIONS_PER_BLOCK = 10
+[2025-03-27 17:02:52] CONFIG: BLOCKCHAIN_BLOCKS = 50000
+[2025-03-27 17:02:52] INFO: System correctly shut down
+[2025-03-27 17:02:52] INFO: Miner process started (PID: 10514)
+[2025-03-27 17:02:52] INFO: Successfully created miner thread 0
+[2025-03-27 17:02:52] INFO: Successfully created miner thread 1
+[2025-03-27 17:02:52] INFO: Successfully created miner thread 2
+[2025-03-27 17:02:52] INFO: Successfully created miner thread 3
+[2025-03-27 17:02:52] INFO: Successfully created miner thread 4
+[2025-03-27 17:02:52] INFO: All threads were created!
+[2025-03-27 17:03:21] CONFIG: NUM_MINERS = 5
+[2025-03-27 17:03:21] CONFIG: POOL_SIZE = 50
+[2025-03-27 17:03:21] CONFIG: TRANSACTIONS_PER_BLOCK = 10
+[2025-03-27 17:03:21] CONFIG: BLOCKCHAIN_BLOCKS = 50000
+[2025-03-27 17:03:21] INFO: Miner process started (PID: 10758)
+[2025-03-27 17:03:21] INFO: Successfully created miner thread 0
+[2025-03-27 17:03:21] INFO: Successfully created miner thread 1
+[2025-03-27 17:03:21] INFO: Successfully created miner thread 2
+[2025-03-27 17:03:21] INFO: Successfully created miner thread 3
+[2025-03-27 17:03:21] INFO: Successfully created miner thread 4
+[2025-03-27 17:03:21] INFO: All threads were created!
+[2025-03-27 17:03:31] INFO: Stopped all miner threads
+[2025-03-27 17:03:31] INFO: System correctly shut down
+[2025-03-27 17:03:49] CONFIG: NUM_MINERS = 5
+[2025-03-27 17:03:49] CONFIG: POOL_SIZE = 50
+[2025-03-27 17:03:49] CONFIG: TRANSACTIONS_PER_BLOCK = 10
+[2025-03-27 17:03:49] CONFIG: BLOCKCHAIN_BLOCKS = 50000
+[2025-03-27 17:03:49] INFO: Miner process started (PID: 10989)
+[2025-03-27 17:03:49] INFO: Successfully created miner thread 0
+[2025-03-27 17:03:49] INFO: Successfully created miner thread 1
+[2025-03-27 17:03:49] INFO: Successfully created miner thread 2
+[2025-03-27 17:03:49] INFO: Successfully created miner thread 3
+[2025-03-27 17:03:49] INFO: Successfully created miner thread 4
+[2025-03-27 17:03:49] INFO: All threads were created!
+[2025-03-27 17:03:59] INFO: Stopped all miner threads
+[2025-03-27 17:03:59] INFO: System correctly shut down
