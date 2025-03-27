@@ -1,5 +1,6 @@
-# Nome do executável
+# Nome dos executáveis
 TARGET = controller
+TXGEN = TxGen
 
 # Compilador
 CC = gcc
@@ -7,18 +8,29 @@ CC = gcc
 # Flags de compilação
 CFLAGS = -Wall -Wextra -Wpedantic -pthread
 
-# Arquivos fonte (agora inclui miner.c)
+# Fontes do controller
 SRCS = logging.c controller.c miner.c
 OBJS = $(SRCS:.c=.o)
 
-# Regra padrão para compilar o executável
+# Fontes do TxGen
+TXGEN_SRCS = txgen.c logging.c
+TXGEN_OBJS = $(TXGEN_SRCS:.c=.o)
+
+# Regra padrão compila ambos
+all: $(TARGET) $(TXGEN)
+
+# Compilar controller
 $(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
 
-# Regra para compilar arquivos .c em .o
+# Compilar TxGen
+$(TXGEN): $(TXGEN_OBJS)
+	$(CC) $(CFLAGS) -o $(TXGEN) $(TXGEN_OBJS)
+
+# Regra geral para .o
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Limpeza dos arquivos compilados
+# Limpeza
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(OBJS) $(TXGEN_OBJS) $(TARGET) $(TXGEN)

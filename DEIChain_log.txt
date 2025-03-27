@@ -41,3 +41,221 @@
 [2025-03-27 17:51:25] INFO: Stopped all miner threads
 [2025-03-27 17:51:25] INFO: Miner process stopped
 [2025-03-27 17:51:25] INFO: System correctly shut down
+[2025-03-27 18:05:39] CONFIG: NUM_MINERS = 5
+[2025-03-27 18:05:39] CONFIG: POOL_SIZE = 50
+[2025-03-27 18:05:39] CONFIG: TRANSACTIONS_PER_BLOCK = 10
+[2025-03-27 18:05:39] CONFIG: BLOCKCHAIN_BLOCKS = 50000
+[2025-03-27 18:05:39] INFO: Miner process started (PID: 21255)
+[2025-03-27 18:05:39] INFO: Successfully created miner thread 0
+[2025-03-27 18:05:39] INFO: Successfully created miner thread 1
+[2025-03-27 18:05:39] INFO: Successfully created miner thread 2
+[2025-03-27 18:05:39] INFO: Successfully created miner thread 3
+[2025-03-27 18:05:39] INFO: Successfully created miner thread 4
+[2025-03-27 18:05:39] INFO: All threads were created!
+[2025-03-27 18:07:42] INFO: Sinal SIGINT capturado. Encerrando...
+[2025-03-27 18:07:42] INFO: Stopped all miner threads
+[2025-03-27 18:07:42] INFO: Miner process stopped
+[2025-03-27 18:07:42] INFO: System correctly shut down
+[2025-03-27 18:13:05] CONFIG: NUM_MINERS = 5
+[2025-03-27 18:13:05] CONFIG: POOL_SIZE = 50
+[2025-03-27 18:13:05] CONFIG: TRANSACTIONS_PER_BLOCK = 10
+[2025-03-27 18:13:05] CONFIG: BLOCKCHAIN_BLOCKS = 50000
+[2025-03-27 18:13:05] INFO: Miner process started (PID: 25800)
+[2025-03-27 18:13:05] INFO: Successfully created miner thread 0
+[2025-03-27 18:13:05] INFO: Successfully created miner thread 1
+[2025-03-27 18:13:05] INFO: Successfully created miner thread 2
+[2025-03-27 18:13:05] INFO: Successfully created miner thread 3
+[2025-03-27 18:13:05] INFO: Successfully created miner thread 4
+[2025-03-27 18:13:05] INFO: All threads were created!
+[2025-03-27 18:13:12] INFO: Sinal SIGINT capturado. Encerrando...
+[2025-03-27 18:13:12] INFO: Stopped all miner threads
+[2025-03-27 18:13:12] INFO: Miner process stopped
+[2025-03-27 18:13:12] INFO: System correctly shut down
+[2025-03-27 18:13:14] CONFIG: NUM_MINERS = 5
+[2025-03-27 18:13:14] CONFIG: POOL_SIZE = 50
+[2025-03-27 18:13:14] CONFIG: TRANSACTIONS_PER_BLOCK = 10
+[2025-03-27 18:13:14] CONFIG: BLOCKCHAIN_BLOCKS = 50000
+[2025-03-27 18:13:14] INFO: Miner process started (PID: 25941)
+[2025-03-27 18:13:14] INFO: Successfully created miner thread 0
+[2025-03-27 18:13:14] INFO: Successfully created miner thread 1
+[2025-03-27 18:13:14] INFO: Successfully created miner thread 2
+[2025-03-27 18:13:14] INFO: Successfully created miner thread 3
+[2025-03-27 18:13:14] INFO: Successfully created miner thread 4
+[2025-03-27 18:13:14] INFO: All threads were created!
+[2025-03-27 18:13:18] INFO: Sinal SIGINT capturado. Encerrando...
+[2025-03-27 18:13:18] INFO: Stopped all miner threads
+[2025-03-27 18:13:18] INFO: Miner process stopped
+[2025-03-27 18:13:18] INFO: System correctly shut down
+[2025-03-27 18:13:19] CONFIG: NUM_MINERS = 5
+[2025-03-27 18:13:19] CONFIG: POOL_SIZE = 50
+[2025-03-27 18:13:19] CONFIG: TRANSACTIONS_PER_BLOCK = 10
+[2025-03-27 18:13:19] CONFIG: BLOCKCHAIN_BLOCKS = 50000
+[2025-03-27 18:13:19] INFO: Miner process started (PID: 26029)
+[2025-03-27 18:13:19] INFO: Successfully created miner thread 0
+[2025-03-27 18:13:19] INFO: Successfully created miner thread 1
+[2025-03-27 18:13:19] INFO: Successfully created miner thread 2
+[2025-03-27 18:13:19] INFO: Successfully created miner thread 3
+[2025-03-27 18:13:19] INFO: Successfully created miner thread 4
+[2025-03-27 18:13:19] INFO: All threads were created!
+[2025-03-27 18:13:21] INFO: Sinal SIGINT capturado. Encerrando...
+[2025-03-27 18:13:21] INFO: Stopped all miner threads
+[2025-03-27 18:13:21] INFO: Miner process stopped
+[2025-03-27 18:13:21] INFO: System correctly shut down
+[2025-03-27 18:13:23] CONFIG: NUM_MINERS = 5
+[2025-03-27 18:13:23] CONFIG: POOL_SIZE = 50
+[2025-03-27 18:13:23] CONFIG: TRANSACTIONS_PER_BLOCK = 10
+[2025-03-27 18:13:23] CONFIG: BLOCKCHAIN_BLOCKS = 50000
+[2025-03-27 18:13:23] INFO: Miner process started (PID: 26082)
+[2025-03-27 18:13:23] INFO: Successfully created miner thread 0
+[2025-03-27 18:13:23] INFO: Successfully created miner thread 1
+[2025-03-27 18:13:23] INFO: Successfully created miner thread 2
+[2025-03-27 18:13:23] INFO: Successfully created miner thread 3
+[2025-03-27 18:13:23] INFO: Successfully created miner thread 4
+[2025-03-27 18:13:23] INFO: All threads were created!
+[2025-03-27 18:13:38] INFO: Sinal SIGINT capturado. Encerrando...
+[2025-03-27 18:13:38] INFO: Stopped all miner threads
+[2025-03-27 18:13:38] INFO: Miner process stopped
+[2025-03-27 18:13:38] INFO: System correctly shut down
+[2025-03-27 18:13:40] CONFIG: NUM_MINERS = 5
+[2025-03-27 18:13:40] CONFIG: POOL_SIZE = 50
+[2025-03-27 18:13:40] CONFIG: TRANSACTIONS_PER_BLOCK = 10
+[2025-03-27 18:13:40] CONFIG: BLOCKCHAIN_BLOCKS = 50000
+[2025-03-27 18:13:40] INFO: Miner process started (PID: 26286)
+[2025-03-27 18:13:40] INFO: Successfully created miner thread 0
+[2025-03-27 18:13:40] INFO: Successfully created miner thread 1
+[2025-03-27 18:13:40] INFO: Successfully created miner thread 2
+[2025-03-27 18:13:40] INFO: Successfully created miner thread 3
+[2025-03-27 18:13:40] INFO: Successfully created miner thread 4
+[2025-03-27 18:13:40] INFO: All threads were created!
+[2025-03-27 18:14:12] TxGen iniciado com reward = 2 e sleep_time = 500 ms
+[2025-03-27 18:14:52] INFO: Sinal SIGINT capturado. Encerrando...
+[2025-03-27 18:14:52] INFO: Stopped all miner threads
+[2025-03-27 18:14:52] INFO: Miner process stopped
+[2025-03-27 18:14:52] INFO: System correctly shut down
+[2025-03-27 18:25:18] CONFIG: NUM_MINERS = 5
+[2025-03-27 18:25:18] CONFIG: POOL_SIZE = 50
+[2025-03-27 18:25:18] CONFIG: TRANSACTIONS_PER_BLOCK = 10
+[2025-03-27 18:25:18] CONFIG: BLOCKCHAIN_BLOCKS = 50000
+[2025-03-27 18:25:18] INFO: Miner process started (PID: 31352)
+[2025-03-27 18:25:18] INFO: Successfully created miner thread 0
+[2025-03-27 18:25:18] INFO: Successfully created miner thread 1
+[2025-03-27 18:25:18] INFO: Successfully created miner thread 2
+[2025-03-27 18:25:18] INFO: Successfully created miner thread 3
+[2025-03-27 18:25:18] INFO: Successfully created miner thread 4
+[2025-03-27 18:25:18] INFO: All threads were created!
+[2025-03-27 18:25:23] TxGen iniciado com reward = 2 e sleep_time = 500 ms
+[2025-03-27 18:25:23] TRANSACTION | ID=314150001 | Reward=2 | From=31415 | To=384 | Value=87 | Time=2025-03-27 18:25:23
+[2025-03-27 18:25:23] TxGen terminado com sucesso.
+[2025-03-27 18:32:45] TxGen iniciado com reward = 2 e sleep_time = 500 ms
+[2025-03-27 18:32:45] TRANSACTION | ID=345800000 | Reward=2 | From=34580 | To=104 | Value=84 | Time=2025-03-27 18:32:45
+[2025-03-27 18:32:46] TRANSACTION | ID=345800001 | Reward=2 | From=34580 | To=588 | Value=3 | Time=2025-03-27 18:32:46
+[2025-03-27 18:32:46] TRANSACTION | ID=345800002 | Reward=2 | From=34580 | To=283 | Value=28 | Time=2025-03-27 18:32:46
+[2025-03-27 18:32:47] TRANSACTION | ID=345800003 | Reward=2 | From=34580 | To=106 | Value=62 | Time=2025-03-27 18:32:47
+[2025-03-27 18:32:47] TRANSACTION | ID=345800004 | Reward=2 | From=34580 | To=71 | Value=16 | Time=2025-03-27 18:32:47
+[2025-03-27 18:32:48] TRANSACTION | ID=345800005 | Reward=2 | From=34580 | To=919 | Value=82 | Time=2025-03-27 18:32:48
+[2025-03-27 18:32:48] TRANSACTION | ID=345800006 | Reward=2 | From=34580 | To=844 | Value=59 | Time=2025-03-27 18:32:48
+[2025-03-27 18:32:49] TRANSACTION | ID=345800007 | Reward=2 | From=34580 | To=148 | Value=34 | Time=2025-03-27 18:32:49
+[2025-03-27 18:32:49] TRANSACTION | ID=345800008 | Reward=2 | From=34580 | To=488 | Value=72 | Time=2025-03-27 18:32:49
+[2025-03-27 18:32:50] TRANSACTION | ID=345800009 | Reward=2 | From=34580 | To=137 | Value=70 | Time=2025-03-27 18:32:50
+[2025-03-27 18:32:50] TRANSACTION | ID=345800010 | Reward=2 | From=34580 | To=182 | Value=97 | Time=2025-03-27 18:32:50
+[2025-03-27 18:32:51] TRANSACTION | ID=345800011 | Reward=2 | From=34580 | To=489 | Value=87 | Time=2025-03-27 18:32:51
+[2025-03-27 18:32:51] TRANSACTION | ID=345800012 | Reward=2 | From=34580 | To=537 | Value=35 | Time=2025-03-27 18:32:51
+[2025-03-27 18:32:52] TRANSACTION | ID=345800013 | Reward=2 | From=34580 | To=856 | Value=79 | Time=2025-03-27 18:32:52
+[2025-03-27 18:32:52] TRANSACTION | ID=345800014 | Reward=2 | From=34580 | To=958 | Value=1 | Time=2025-03-27 18:32:52
+[2025-03-27 18:32:53] TRANSACTION | ID=345800015 | Reward=2 | From=34580 | To=15 | Value=62 | Time=2025-03-27 18:32:53
+[2025-03-27 18:32:53] TRANSACTION | ID=345800016 | Reward=2 | From=34580 | To=336 | Value=3 | Time=2025-03-27 18:32:53
+[2025-03-27 18:32:54] TRANSACTION | ID=345800017 | Reward=2 | From=34580 | To=916 | Value=71 | Time=2025-03-27 18:32:54
+[2025-03-27 18:32:54] TRANSACTION | ID=345800018 | Reward=2 | From=34580 | To=482 | Value=21 | Time=2025-03-27 18:32:54
+[2025-03-27 18:32:55] TRANSACTION | ID=345800019 | Reward=2 | From=34580 | To=332 | Value=53 | Time=2025-03-27 18:32:55
+[2025-03-27 18:32:55] TRANSACTION | ID=345800020 | Reward=2 | From=34580 | To=489 | Value=2 | Time=2025-03-27 18:32:55
+[2025-03-27 18:32:56] TRANSACTION | ID=345800021 | Reward=2 | From=34580 | To=734 | Value=32 | Time=2025-03-27 18:32:56
+[2025-03-27 18:32:56] TRANSACTION | ID=345800022 | Reward=2 | From=34580 | To=361 | Value=33 | Time=2025-03-27 18:32:56
+[2025-03-27 18:32:57] TRANSACTION | ID=345800023 | Reward=2 | From=34580 | To=317 | Value=48 | Time=2025-03-27 18:32:57
+[2025-03-27 18:32:57] TRANSACTION | ID=345800024 | Reward=2 | From=34580 | To=105 | Value=54 | Time=2025-03-27 18:32:57
+[2025-03-27 18:32:58] TRANSACTION | ID=345800025 | Reward=2 | From=34580 | To=770 | Value=86 | Time=2025-03-27 18:32:58
+[2025-03-27 18:32:58] TRANSACTION | ID=345800026 | Reward=2 | From=34580 | To=950 | Value=10 | Time=2025-03-27 18:32:58
+[2025-03-27 18:32:59] TRANSACTION | ID=345800027 | Reward=2 | From=34580 | To=724 | Value=86 | Time=2025-03-27 18:32:59
+[2025-03-27 18:32:59] TRANSACTION | ID=345800028 | Reward=2 | From=34580 | To=44 | Value=31 | Time=2025-03-27 18:32:59
+[2025-03-27 18:33:00] TRANSACTION | ID=345800029 | Reward=2 | From=34580 | To=964 | Value=53 | Time=2025-03-27 18:33:00
+[2025-03-27 18:33:00] TRANSACTION | ID=345800030 | Reward=2 | From=34580 | To=532 | Value=31 | Time=2025-03-27 18:33:00
+[2025-03-27 18:33:00] TxGen iniciado com reward = 2 e sleep_time = 500 ms
+[2025-03-27 18:33:00] TRANSACTION | ID=351550000 | Reward=2 | From=35155 | To=310 | Value=20 | Time=2025-03-27 18:33:00
+[2025-03-27 18:33:01] TRANSACTION | ID=345800031 | Reward=2 | From=34580 | To=414 | Value=19 | Time=2025-03-27 18:33:01
+[2025-03-27 18:33:01] TRANSACTION | ID=351550001 | Reward=2 | From=35155 | To=132 | Value=15 | Time=2025-03-27 18:33:01
+[2025-03-27 18:33:01] TRANSACTION | ID=345800032 | Reward=2 | From=34580 | To=933 | Value=82 | Time=2025-03-27 18:33:01
+[2025-03-27 18:33:01] TRANSACTION | ID=351550002 | Reward=2 | From=35155 | To=427 | Value=23 | Time=2025-03-27 18:33:01
+[2025-03-27 18:33:02] TRANSACTION | ID=345800033 | Reward=2 | From=34580 | To=189 | Value=14 | Time=2025-03-27 18:33:02
+[2025-03-27 18:33:02] TRANSACTION | ID=351550003 | Reward=2 | From=35155 | To=398 | Value=84 | Time=2025-03-27 18:33:02
+[2025-03-27 18:33:02] TRANSACTION | ID=345800034 | Reward=2 | From=34580 | To=702 | Value=72 | Time=2025-03-27 18:33:02
+[2025-03-27 18:33:02] TRANSACTION | ID=351550004 | Reward=2 | From=35155 | To=915 | Value=72 | Time=2025-03-27 18:33:02
+[2025-03-27 18:33:03] TRANSACTION | ID=345800035 | Reward=2 | From=34580 | To=318 | Value=42 | Time=2025-03-27 18:33:03
+[2025-03-27 18:33:03] TRANSACTION | ID=351550005 | Reward=2 | From=35155 | To=884 | Value=60 | Time=2025-03-27 18:33:03
+[2025-03-27 18:33:03] TRANSACTION | ID=345800036 | Reward=2 | From=34580 | To=474 | Value=51 | Time=2025-03-27 18:33:03
+[2025-03-27 18:33:03] TRANSACTION | ID=351550006 | Reward=2 | From=35155 | To=374 | Value=33 | Time=2025-03-27 18:33:03
+[2025-03-27 18:33:04] TRANSACTION | ID=345800037 | Reward=2 | From=34580 | To=225 | Value=86 | Time=2025-03-27 18:33:04
+[2025-03-27 18:33:04] TRANSACTION | ID=351550007 | Reward=2 | From=35155 | To=973 | Value=25 | Time=2025-03-27 18:33:04
+[2025-03-27 18:33:04] TRANSACTION | ID=345800038 | Reward=2 | From=34580 | To=636 | Value=42 | Time=2025-03-27 18:33:04
+[2025-03-27 18:33:04] TRANSACTION | ID=351550008 | Reward=2 | From=35155 | To=620 | Value=73 | Time=2025-03-27 18:33:04
+[2025-03-27 18:33:05] TRANSACTION | ID=345800039 | Reward=2 | From=34580 | To=33 | Value=40 | Time=2025-03-27 18:33:05
+[2025-03-27 18:33:05] TRANSACTION | ID=351550009 | Reward=2 | From=35155 | To=604 | Value=33 | Time=2025-03-27 18:33:05
+[2025-03-27 18:33:05] TRANSACTION | ID=345800040 | Reward=2 | From=34580 | To=995 | Value=2 | Time=2025-03-27 18:33:05
+[2025-03-27 18:33:05] TRANSACTION | ID=351550010 | Reward=2 | From=35155 | To=212 | Value=69 | Time=2025-03-27 18:33:05
+[2025-03-27 18:33:06] TRANSACTION | ID=345800041 | Reward=2 | From=34580 | To=377 | Value=96 | Time=2025-03-27 18:33:06
+[2025-03-27 18:33:06] TRANSACTION | ID=351550011 | Reward=2 | From=35155 | To=98 | Value=12 | Time=2025-03-27 18:33:06
+[2025-03-27 18:33:06] TRANSACTION | ID=345800042 | Reward=2 | From=34580 | To=411 | Value=52 | Time=2025-03-27 18:33:06
+[2025-03-27 18:33:06] TRANSACTION | ID=351550012 | Reward=2 | From=35155 | To=122 | Value=62 | Time=2025-03-27 18:33:06
+[2025-03-27 18:33:07] TRANSACTION | ID=345800043 | Reward=2 | From=34580 | To=133 | Value=6 | Time=2025-03-27 18:33:07
+[2025-03-27 18:33:07] TRANSACTION | ID=351550013 | Reward=2 | From=35155 | To=626 | Value=2 | Time=2025-03-27 18:33:07
+[2025-03-27 18:33:07] TRANSACTION | ID=345800044 | Reward=2 | From=34580 | To=383 | Value=49 | Time=2025-03-27 18:33:07
+[2025-03-27 18:33:07] TRANSACTION | ID=351550014 | Reward=2 | From=35155 | To=253 | Value=32 | Time=2025-03-27 18:33:07
+[2025-03-27 18:33:08] TRANSACTION | ID=345800045 | Reward=2 | From=34580 | To=159 | Value=66 | Time=2025-03-27 18:33:08
+[2025-03-27 18:33:08] TRANSACTION | ID=351550015 | Reward=2 | From=35155 | To=441 | Value=63 | Time=2025-03-27 18:33:08
+[2025-03-27 18:33:08] TRANSACTION | ID=345800046 | Reward=2 | From=34580 | To=779 | Value=24 | Time=2025-03-27 18:33:08
+[2025-03-27 18:33:08] TRANSACTION | ID=351550016 | Reward=2 | From=35155 | To=151 | Value=24 | Time=2025-03-27 18:33:08
+[2025-03-27 18:33:09] TRANSACTION | ID=345800047 | Reward=2 | From=34580 | To=484 | Value=63 | Time=2025-03-27 18:33:09
+[2025-03-27 18:33:09] TRANSACTION | ID=351550017 | Reward=2 | From=35155 | To=429 | Value=29 | Time=2025-03-27 18:33:09
+[2025-03-27 18:33:09] TRANSACTION | ID=345800048 | Reward=2 | From=34580 | To=605 | Value=25 | Time=2025-03-27 18:33:09
+[2025-03-27 18:33:09] TRANSACTION | ID=351550018 | Reward=2 | From=35155 | To=498 | Value=26 | Time=2025-03-27 18:33:09
+[2025-03-27 18:33:10] TRANSACTION | ID=345800049 | Reward=2 | From=34580 | To=828 | Value=59 | Time=2025-03-27 18:33:10
+[2025-03-27 18:33:10] TRANSACTION | ID=351550019 | Reward=2 | From=35155 | To=312 | Value=13 | Time=2025-03-27 18:33:10
+[2025-03-27 18:33:10] TRANSACTION | ID=345800050 | Reward=2 | From=34580 | To=896 | Value=46 | Time=2025-03-27 18:33:10
+[2025-03-27 18:33:10] TRANSACTION | ID=351550020 | Reward=2 | From=35155 | To=997 | Value=96 | Time=2025-03-27 18:33:10
+[2025-03-27 18:33:11] TRANSACTION | ID=345800051 | Reward=2 | From=34580 | To=552 | Value=21 | Time=2025-03-27 18:33:11
+[2025-03-27 18:33:11] TRANSACTION | ID=351550021 | Reward=2 | From=35155 | To=124 | Value=22 | Time=2025-03-27 18:33:11
+[2025-03-27 18:33:11] TRANSACTION | ID=345800052 | Reward=2 | From=34580 | To=548 | Value=77 | Time=2025-03-27 18:33:11
+[2025-03-27 18:33:11] TRANSACTION | ID=351550022 | Reward=2 | From=35155 | To=128 | Value=97 | Time=2025-03-27 18:33:11
+[2025-03-27 18:33:12] TRANSACTION | ID=345800053 | Reward=2 | From=34580 | To=906 | Value=83 | Time=2025-03-27 18:33:12
+[2025-03-27 18:33:12] TRANSACTION | ID=351550023 | Reward=2 | From=35155 | To=199 | Value=100 | Time=2025-03-27 18:33:12
+[2025-03-27 18:33:12] TRANSACTION | ID=345800054 | Reward=2 | From=34580 | To=670 | Value=91 | Time=2025-03-27 18:33:12
+[2025-03-27 18:33:12] TRANSACTION | ID=351550024 | Reward=2 | From=35155 | To=421 | Value=2 | Time=2025-03-27 18:33:12
+[2025-03-27 18:33:13] TRANSACTION | ID=345800055 | Reward=2 | From=34580 | To=274 | Value=64 | Time=2025-03-27 18:33:13
+[2025-03-27 18:33:13] TRANSACTION | ID=351550025 | Reward=2 | From=35155 | To=484 | Value=32 | Time=2025-03-27 18:33:13
+[2025-03-27 18:33:13] TRANSACTION | ID=345800056 | Reward=2 | From=34580 | To=92 | Value=50 | Time=2025-03-27 18:33:13
+[2025-03-27 18:33:13] TRANSACTION | ID=351550026 | Reward=2 | From=35155 | To=322 | Value=81 | Time=2025-03-27 18:33:13
+[2025-03-27 18:33:14] TRANSACTION | ID=345800057 | Reward=2 | From=34580 | To=311 | Value=55 | Time=2025-03-27 18:33:14
+[2025-03-27 18:33:14] TRANSACTION | ID=351550027 | Reward=2 | From=35155 | To=595 | Value=43 | Time=2025-03-27 18:33:14
+[2025-03-27 18:33:14] TRANSACTION | ID=345800058 | Reward=2 | From=34580 | To=454 | Value=43 | Time=2025-03-27 18:33:14
+[2025-03-27 18:33:14] TRANSACTION | ID=351550028 | Reward=2 | From=35155 | To=95 | Value=21 | Time=2025-03-27 18:33:14
+[2025-03-27 18:33:15] TRANSACTION | ID=345800059 | Reward=2 | From=34580 | To=12 | Value=36 | Time=2025-03-27 18:33:15
+[2025-03-27 18:33:15] TRANSACTION | ID=351550029 | Reward=2 | From=35155 | To=897 | Value=47 | Time=2025-03-27 18:33:15
+[2025-03-27 18:33:15] TRANSACTION | ID=345800060 | Reward=2 | From=34580 | To=243 | Value=22 | Time=2025-03-27 18:33:15
+[2025-03-27 18:33:15] TRANSACTION | ID=351550030 | Reward=2 | From=35155 | To=552 | Value=89 | Time=2025-03-27 18:33:15
+[2025-03-27 18:33:16] TRANSACTION | ID=345800061 | Reward=2 | From=34580 | To=453 | Value=21 | Time=2025-03-27 18:33:16
+[2025-03-27 18:33:16] TRANSACTION | ID=351550031 | Reward=2 | From=35155 | To=261 | Value=54 | Time=2025-03-27 18:33:16
+[2025-03-27 18:33:16] TRANSACTION | ID=345800062 | Reward=2 | From=34580 | To=446 | Value=88 | Time=2025-03-27 18:33:16
+[2025-03-27 18:33:16] TRANSACTION | ID=351550032 | Reward=2 | From=35155 | To=612 | Value=42 | Time=2025-03-27 18:33:16
+[2025-03-27 18:33:17] TxGen encerrado com SIGINT (PID=35155)
+[2025-03-27 18:33:17] TRANSACTION | ID=345800063 | Reward=2 | From=34580 | To=435 | Value=2 | Time=2025-03-27 18:33:17
+[2025-03-27 18:33:17] TRANSACTION | ID=345800064 | Reward=2 | From=34580 | To=312 | Value=63 | Time=2025-03-27 18:33:17
+[2025-03-27 18:33:18] TRANSACTION | ID=345800065 | Reward=2 | From=34580 | To=412 | Value=60 | Time=2025-03-27 18:33:18
+[2025-03-27 18:33:18] TRANSACTION | ID=345800066 | Reward=2 | From=34580 | To=408 | Value=64 | Time=2025-03-27 18:33:18
+[2025-03-27 18:33:19] TRANSACTION | ID=345800067 | Reward=2 | From=34580 | To=280 | Value=7 | Time=2025-03-27 18:33:19
+[2025-03-27 18:33:19] TRANSACTION | ID=345800068 | Reward=2 | From=34580 | To=92 | Value=38 | Time=2025-03-27 18:33:19
+[2025-03-27 18:33:20] TRANSACTION | ID=345800069 | Reward=2 | From=34580 | To=490 | Value=61 | Time=2025-03-27 18:33:20
+[2025-03-27 18:33:20] TRANSACTION | ID=345800070 | Reward=2 | From=34580 | To=828 | Value=63 | Time=2025-03-27 18:33:20
+[2025-03-27 18:33:21] TRANSACTION | ID=345800071 | Reward=2 | From=34580 | To=776 | Value=71 | Time=2025-03-27 18:33:21
+[2025-03-27 18:33:21] TxGen encerrado com SIGINT (PID=34580)
+[2025-03-27 18:36:25] INFO: Sinal SIGINT capturado. Encerrando...
+[2025-03-27 18:36:25] INFO: Stopped all miner threads
+[2025-03-27 18:36:25] INFO: Miner process stopped
+[2025-03-27 18:36:25] INFO: System correctly shut down
