@@ -10,12 +10,17 @@
 
 volatile sig_atomic_t shutdown_requested = 0;
 static pid_t miner_pid = -1;
+static pid_t validator_pid = -1;
+static pid_t statistics_pid = -1;
 
 // Função para tratar o sinal SIGINT
 void handle_sigint(int sig) {
     (void)sig;
     shutdown_requested = 1;
     log_message("INFO: Sinal SIGINT capturado. Encerrando...");
+    if (miner_pid > 0) {
+        kill(miner_pid, SIGINT);
+    }
 }
 
 // Função para ler o arquivo de configuração
@@ -49,20 +54,6 @@ void load_config(const char *filename, Config *config) {
     log_message("CONFIG: BLOCKCHAIN_BLOCKS = %d", config->blockchain_blocks);
 }
 
-void start_miner_process(int num_threads){
-    log_message("INFO: Miner process started (PID: %d)", getpid());
-    init_miner(num_threads, 0, 0); // transaction_pool e transactions_per_block ainda não usados
-    start_miner_threads();
-    exit(EXIT_SUCCESS);
-}
-
-void stop_miner_process(){
-    stop_miner_threads();
-    if (miner_pid > 0){
-        waitpid(miner_pid, NULL, 0);
-        log_message("INFO: Miner process stopped");
-    } 
-}
 
 int main() {
     Config config;
@@ -74,22 +65,43 @@ int main() {
     load_config("config.cfg", &config);
 
     miner_pid = fork();
-
     if (miner_pid < 0){
         log_message("ERROR: Failed to create miner process");
         exit(EXIT_FAILURE);
     } else if (miner_pid == 0){
-        start_miner_process(config.num_miners);
+        run_miner_process(config.num_miners);
+        exit(EXIT_SUCCESS);
     }
+
+    validator_pid = fork();
+    if (validator_pid < 0){
+        log_message("ERROR: Failed to create validator process");
+        exit(EXIT_FAILURE);
+    } else if (validator_pid == 0){
+        // Função executada pelo validator process
+        exit(EXIT_SUCCESS);
+    }
+
+    statistics_pid = fork();
+    if (statistics_pid < 0){
+        log_message("ERROR: Failed to create statistics process");
+        exit(EXIT_FAILURE);
+    } else if (statistics_pid == 0){
+        // Função executada pelo statistics process
+        exit(EXIT_SUCCESS);
+    }
+
+
 
     // Loop principal: espera até que SIGINT seja capturado
     while (!shutdown_requested) {
-        sleep(1); // Pode ser substituído por lógica útil
+        pause(); // Pode ser substituído por lógica útil
     }
 
-    stop_miner_process();
+    waitpid(miner_pid, NULL, 0);
     log_message("INFO: System correctly shut down");
     log_close();
 
     return 0;
 }
+
