@@ -1,6 +1,7 @@
-#include <pthread.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include <signal.h>
 #include <stdbool.h>
 #include <unistd.h>
 #include "miner.h"
@@ -9,13 +10,19 @@
 static int num_miners;
 static pthread_t* miner_threads = NULL;
 static MinerThreadArgs* thread_args = NULL;
-static bool running = false;
+static volatile sig_atomic_t running = 1;
+
+void handle_sigint_miner(int sig) {
+    (void)sig;
+    running = 0;
+    log_message("INFO: SIGINT received by miner process, stopping mining...");
+}
 
 void* miner_thread_func(void *arg){
     MinerThreadArgs* args = (MinerThreadArgs*)arg;
     while (running) {
 
-        printf("Miner %d trabalhando...\n", args->id);
+        log_message("INFO: Miner %d is working...", args->id);
         sleep(1);  // Simula trabalho
     }
 
@@ -40,8 +47,6 @@ void init_miner(int nm, int ps, int tpb){
 }
 
 void start_miner_threads(){
-    running = true;
-
     for (int i = 0; i < num_miners; i++){
         thread_args[i].id = i;
         if (pthread_create(&miner_threads[i], NULL, miner_thread_func, &thread_args[i]) != 0){
@@ -54,8 +59,6 @@ void start_miner_threads(){
 }
 
 void stop_miner_threads() {
-    running = false;
-
     for (int i = 0; i < num_miners; i++){
         pthread_join(miner_threads[i], NULL);
     }
@@ -66,4 +69,19 @@ void stop_miner_threads() {
     thread_args = NULL;
 
     log_message("INFO: Stopped all miner threads");
+}
+
+void run_miner_process(int num_threads) {
+    signal(SIGINT, handle_sigint_miner);
+    log_message("INFO: Miner process started (PID %d)", getpid());
+
+    init_miner(num_threads, 0, 0);
+    start_miner_threads();
+
+    while (running) {
+        sleep(1); // pode ser substituído por lógica mais útil
+    }
+
+    stop_miner_threads();
+    log_message("INFO: Miner process exiting");
 }
