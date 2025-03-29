@@ -8,6 +8,9 @@ CC = gcc
 # Flags de compilação
 CFLAGS = -Wall -Wextra -Wpedantic -pthread
 
+# Flags de ligação (link)
+LDFLAGS = -lrt
+
 # Fontes do controller
 SRCS = logging.c controller.c miner.c
 OBJS = $(SRCS:.c=.o)
@@ -21,11 +24,11 @@ all: $(TARGET) $(TXGEN)
 
 # Compilar controller
 $(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS) $(LDFLAGS)
 
 # Compilar TxGen
 $(TXGEN): $(TXGEN_OBJS)
-	$(CC) $(CFLAGS) -o $(TXGEN) $(TXGEN_OBJS)
+	$(CC) $(CFLAGS) -o $(TXGEN) $(TXGEN_OBJS) $(LDFLAGS)
 
 # Regra geral para .o
 %.o: %.c
