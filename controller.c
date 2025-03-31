@@ -25,19 +25,10 @@ static pid_t validator_pid = -1;
 static pid_t statistics_pid = -1;
 
 typedef struct {
-    int id;
-    int reward;
-    int sender_id;
-    int receiver_id;
-    int value;
-    time_t timestamp;
-    int aging;
-} Transaction;
-
-
-typedef struct {
-    int dummy; // Placeholder, define your actual fields
+    int teste;
 } Block;
+
+typedef void (*ProcessFunctionWithArgs)(void *);
 
 // Função para tratar o sinal SIGINT
 void handle_sigint(int sig) {
@@ -169,6 +160,30 @@ void cleanup_shared_memory() {
     }
 }
 
+void run_miner_process_wrapper(void *arg) {
+    int num_threads = *((int*)arg);
+    run_miner_process(num_threads);
+}
+pid_t create_process(const char *name, ProcessFunctionWithArgs func, void *args) {
+    pid_t pid = fork();
+
+    if (pid < 0) {
+        log_message("ERROR: Failed to create %s process", name);
+        exit(EXIT_FAILURE);
+    } else if (pid == 0) {
+        // Processo filho
+        if (func != NULL) {
+            func(args);
+        } else {
+            log_message("WARNING: No function defined for %s process", name);
+        }
+        exit(EXIT_SUCCESS);
+    }
+
+    log_message("INFO: %s process created with (PID: %d)", name, pid);
+    return pid;
+}
+
 
 int main() {
     Config config;
@@ -181,34 +196,9 @@ int main() {
 
     init_shared_memory(&config);
 
-    miner_pid = fork();
-    if (miner_pid < 0){
-        log_message("ERROR: Failed to create miner process");
-        exit(EXIT_FAILURE);
-    } else if (miner_pid == 0){
-        run_miner_process(config.num_miners);
-        exit(EXIT_SUCCESS);
-    }
-
-    validator_pid = fork();
-    if (validator_pid < 0){
-        log_message("ERROR: Failed to create validator process");
-        exit(EXIT_FAILURE);
-    } else if (validator_pid == 0){
-        // Função executada pelo validator process
-        exit(EXIT_SUCCESS);
-    }
-
-    statistics_pid = fork();
-    if (statistics_pid < 0){
-        log_message("ERROR: Failed to create statistics process");
-        exit(EXIT_FAILURE);
-    } else if (statistics_pid == 0){
-        // Função executada pelo statistics process
-        exit(EXIT_SUCCESS);
-    }
-
-
+    miner_pid = create_process("Miner", run_miner_process_wrapper, &config.num_miners);
+    validator_pid = create_process("Validator", NULL, NULL);
+    statistics_pid = create_process("Statistics", NULL, NULL);
 
     // Loop principal: espera até que SIGINT seja capturado
     while (!shutdown_requested) {
@@ -218,9 +208,7 @@ int main() {
     waitpid(miner_pid, NULL, 0);
     waitpid(validator_pid, NULL, 0);
     waitpid(statistics_pid, NULL, 0);
-    
-    cleanup_shared_memory();
-    
+    // Fechar ferramentas de sincronização
     log_message("INFO: System correctly shut down");
     log_close();
 

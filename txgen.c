@@ -22,14 +22,6 @@ void handle_sigint(int sig) {
     stop_requested = 1;
 }
 
-void log_transaction(const Transaction* t) {
-    char time_str[20];
-    strftime(time_str, sizeof(time_str), "%Y-%m-%d %H:%M:%S", localtime(&t->timestamp));
-
-    log_message("TRANSACTION | ID=%d | Reward=%d | From=%d | To=%d | Value=%d | Time=%s",
-                t->id, t->reward, t->sender_id, t->receiver_id, t->value, time_str);
-}
-
 int main(int argc, char *argv[]) {
     log_init("DEIChain_log.txt");
 
@@ -68,10 +60,10 @@ int main(int argc, char *argv[]) {
         t.sender_id = getpid();
         t.receiver_id = rand() % 1000 + 1;
         t.value = rand() % 100 + 1;
-        t.timestamp = time(NULL);
         t.aging = 0;
 
-        log_transaction(&t);
+        log_message("TRANSACTION | ID=%d | Reward=%d | From=%d | To=%d | Value=%d",
+            t.id, t.reward, t.sender_id, t.receiver_id, t.value);
 
         usleep(sleep_time * 1000); // Espera entre transações
     }
