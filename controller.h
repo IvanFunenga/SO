@@ -9,6 +9,17 @@ typedef struct {
     int blockchain_blocks;
 } Config;
 
+typedef struct {
+    int id;
+    int reward;
+    int sender_id;
+    int receiver_id;
+    int value;
+    time_t timestamp;
+    int aging;
+} Transaction;
+
+
 void load_config(const char *filename, Config *config);
 
 #endif
