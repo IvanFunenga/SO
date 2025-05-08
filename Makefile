@@ -19,13 +19,13 @@ TXGEN_BIN = txgen
 # Target principal
 all: $(CONTROLLER_BIN) $(TXGEN_BIN)
 
-# Compilação do controller
+# Compilação do controller (com -lrt)
 $(CONTROLLER_BIN): $(CONTROLLER_OBJ)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) -lrt
 
-# Compilação do txgen
+# Compilação do txgen (com -lrt)
 $(TXGEN_BIN): $(TXGEN_OBJ)
-	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS) -lrt
 
 # Limpar os ficheiros compilados
 clean:
