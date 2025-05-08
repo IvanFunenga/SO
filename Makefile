@@ -1,36 +1,35 @@
-# Nome dos executáveis
-TARGET = controller
-TXGEN = TxGen
-
-# Compilador
 CC = gcc
+CFLAGS = -Wall -Wextra -g
+LDFLAGS = -pthread
 
-# Flags de compilação
-CFLAGS = -Wall -Wextra -Wpedantic -pthread
+# Ficheiros de origem
+SRC_COMMON = logging.c miner.c
+HDR_COMMON = logging.h miner.h
 
-# Fontes do controller
-SRCS = logging.c controller.c miner.c
-OBJS = $(SRCS:.c=.o)
+# Programa 1: controller
+CONTROLLER_SRC = controller.c $(SRC_COMMON)
+CONTROLLER_OBJ = $(CONTROLLER_SRC:.c=.o)
+CONTROLLER_BIN = controller
 
-# Fontes do TxGen
-TXGEN_SRCS = txgen.c logging.c
-TXGEN_OBJS = $(TXGEN_SRCS:.c=.o)
+# Programa 2: txgen
+TXGEN_SRC = txgen.c logging.c
+TXGEN_OBJ = $(TXGEN_SRC:.c=.o)
+TXGEN_BIN = txgen
 
-# Regra padrão compila ambos
-all: $(TARGET) $(TXGEN)
+# Target principal
+all: $(CONTROLLER_BIN) $(TXGEN_BIN)
 
-# Compilar controller
-$(TARGET): $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
+# Compilação do controller
+$(CONTROLLER_BIN): $(CONTROLLER_OBJ)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-# Compilar TxGen
-$(TXGEN): $(TXGEN_OBJS)
-	$(CC) $(CFLAGS) -o $(TXGEN) $(TXGEN_OBJS)
+# Compilação do txgen
+$(TXGEN_BIN): $(TXGEN_OBJ)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-# Regra geral para .o
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
-
-# Limpeza
+# Limpar os ficheiros compilados
 clean:
-	rm -f $(OBJS) $(TXGEN_OBJS) $(TARGET) $(TXGEN)
+	rm -f *.o $(CONTROLLER_BIN) $(TXGEN_BIN)
+
+# Evita que targets com nome de ficheiro sejam interpretados como ficheiros
+.PHONY: all clean

@@ -8,12 +8,13 @@
 #include <sys/mman.h>
 #include <string.h>
 #include "logging.h"
-#include "controller.h"
+#include "common.h"
 #include "miner.h"
 
 #define TX_POOL_SHM "/tx_pool_shm"
 #define BLOCKCHAIN_SHM "/blockchain_shm"
 
+Config global_config;
 
 int tx_pool_fd = -1, blockchain_fd = -1;
 void* tx_pool_ptr = NULL;
@@ -24,54 +25,38 @@ static pid_t miner_pid = -1;
 static pid_t validator_pid = -1;
 static pid_t statistics_pid = -1;
 
-typedef struct {
-    int teste;
-} Block;
-
 typedef void (*ProcessFunctionWithArgs)(void *);
 
-// Função para tratar o sinal SIGINT
+// Signal handler for SIGINT
 void handle_sigint(int sig) {
     (void)sig;
     shutdown_requested = 1;
-    log_message("INFO: Sinal SIGINT capturado. Encerrando...");
+    log_message("INFO: SIGINT signal captured. Shutting down...");
     if (miner_pid > 0) {
         kill(miner_pid, SIGINT);
     }
 }
 
-// Função para ler o arquivo de configuração
-void load_config(const char *filename, Config *config) {
-    FILE* file = fopen(filename, "r");
-    if (!file) {
-        log_message("ERRO: Falha ao abrir arquivo de configuração %s", filename);
-        exit(EXIT_FAILURE);
+void print_tx_pool(Transaction* pool, int pool_size) {
+    printf("\n=== Conteúdo da Transaction Pool ===\n");
+    for (int i = 0; i < pool_size; i++) {
+        if (pool[i].empty) {
+            printf("[Slot %d] VAZIO\n", i);
+        } else {
+            printf("[Slot %d] ID=%d | From=%d | To=%d | Value=%d | Reward=%d\n",
+                   i,
+                   pool[i].id,
+                   pool[i].sender_id,
+                   pool[i].receiver_id,
+                   pool[i].value,
+                   pool[i].reward);
+        }
     }
-
-    if (fscanf(file, "%d", &config->num_miners) != 1 ||
-        fscanf(file, "%d", &config->pool_size) != 1 ||
-        fscanf(file, "%d", &config->transactions_per_block) != 1 ||
-        fscanf(file, "%d", &config->blockchain_blocks) != 1) {
-        
-        log_message("ERRO: Formato incorreto no arquivo de configuração");
-        fclose(file);
-        exit(EXIT_FAILURE);
-    }
-    fclose(file);
-    
-    if (config->num_miners <= 0 || config->pool_size <= 0 || 
-        config->transactions_per_block <= 0 || config->blockchain_blocks <= 0) {
-        log_message("ERRO: Valores de configuração inválidos (devem ser positivos)");
-        exit(EXIT_FAILURE);
-    }
-
-    log_message("CONFIG: NUM_MINERS = %d", config->num_miners);
-    log_message("CONFIG: POOL_SIZE = %d", config->pool_size);
-    log_message("CONFIG: TRANSACTIONS_PER_BLOCK = %d", config->transactions_per_block);
-    log_message("CONFIG: BLOCKCHAIN_BLOCKS = %d", config->blockchain_blocks);
+    printf("=====================================\n");
 }
 
-// Criação e verificação de memória partilhada
+
+// Create and map shared memory
 void init_shared_memory(const Config* config) {
     size_t tx_pool_size = sizeof(Transaction) * config->pool_size;
     size_t blockchain_size = sizeof(Block) * config->blockchain_blocks;
@@ -79,91 +64,98 @@ void init_shared_memory(const Config* config) {
     // TX Pool
     tx_pool_fd = shm_open(TX_POOL_SHM, O_CREAT | O_RDWR, 0666);
     if (tx_pool_fd == -1) {
-        log_message("ERRO: Falha ao criar shared memory para tx_pool");
+        log_message("ERROR: Failed to create shared memory for tx_pool");
         exit(EXIT_FAILURE);
     }
     if (ftruncate(tx_pool_fd, tx_pool_size) == -1) {
-        log_message("ERRO: ftruncate falhou em tx_pool");
+        log_message("ERROR: ftruncate failed for tx_pool");
         exit(EXIT_FAILURE);
     }
     tx_pool_ptr = mmap(NULL, tx_pool_size, PROT_READ | PROT_WRITE, MAP_SHARED, tx_pool_fd, 0);
     if (tx_pool_ptr == MAP_FAILED) {
-        log_message("ERRO: mmap falhou em tx_pool");
+        log_message("ERROR: mmap failed for tx_pool");
         exit(EXIT_FAILURE);
     }
-    log_message("SHM: tx_pool criada e mapeada com sucesso (%zu bytes)", tx_pool_size);
+    log_message("SHM: tx_pool created and mapped successfully (%zu bytes)", tx_pool_size);
+
+    Transaction* pool = (Transaction*)tx_pool_ptr;
+    for (int i = 0; i < config->pool_size; i++) {
+        pool[i].empty = 1;
+    }
+    log_message("SHM: tx_pool inicializada com todos os slots vazios");
 
     // Blockchain
     blockchain_fd = shm_open(BLOCKCHAIN_SHM, O_CREAT | O_RDWR, 0666);
     if (blockchain_fd == -1) {
-        log_message("ERRO: Falha ao criar shared memory para blockchain");
+        log_message("ERROR: Failed to create shared memory for blockchain");
         exit(EXIT_FAILURE);
     }
     if (ftruncate(blockchain_fd, blockchain_size) == -1) {
-        log_message("ERRO: ftruncate falhou em blockchain");
+        log_message("ERROR: ftruncate failed for blockchain");
         exit(EXIT_FAILURE);
     }
     blockchain_ptr = mmap(NULL, blockchain_size, PROT_READ | PROT_WRITE, MAP_SHARED, blockchain_fd, 0);
     if (blockchain_ptr == MAP_FAILED) {
-        log_message("ERRO: mmap falhou em blockchain");
+        log_message("ERROR: mmap failed for blockchain");
         exit(EXIT_FAILURE);
     }
-    log_message("SHM: blockchain criada e mapeada com sucesso (%zu bytes)", blockchain_size);
+    log_message("SHM: blockchain created and mapped successfully (%zu bytes)", blockchain_size);
 }
 
+// Unmap and unlink shared memory
 void cleanup_shared_memory() {
-    // Desmapear memória partilhada
     if (tx_pool_ptr) {
-        if (munmap(tx_pool_ptr, sizeof(Transaction)) == 0) {
-            log_message("SHM: tx_pool desmapeada com sucesso");
+        if (munmap(tx_pool_ptr, sizeof(Transaction) * global_config.pool_size) == 0) {
+            log_message("SHM: tx_pool unmapped successfully");
         } else {
-            log_message("ERRO: Falha ao desmapear tx_pool");
+            log_message("ERROR: Failed to unmap tx_pool");
         }
     }
 
     if (blockchain_ptr) {
         if (munmap(blockchain_ptr, sizeof(Block)) == 0) {
-            log_message("SHM: blockchain desmapeada com sucesso");
+            log_message("SHM: blockchain unmapped successfully");
         } else {
-            log_message("ERRO: Falha ao desmapear blockchain");
+            log_message("ERROR: Failed to unmap blockchain");
         }
     }
 
-    // Fechar descritores
     if (tx_pool_fd != -1) {
         if (close(tx_pool_fd) == 0) {
-            log_message("SHM: tx_pool descriptor fechado com sucesso");
+            log_message("SHM: tx_pool descriptor closed successfully");
         } else {
-            log_message("ERRO: Falha ao fechar descriptor de tx_pool");
+            log_message("ERROR: Failed to close tx_pool descriptor");
         }
     }
 
     if (blockchain_fd != -1) {
         if (close(blockchain_fd) == 0) {
-            log_message("SHM: blockchain descriptor fechado com sucesso");
+            log_message("SHM: blockchain descriptor closed successfully");
         } else {
-            log_message("ERRO: Falha ao fechar descriptor de blockchain");
+            log_message("ERROR: Failed to close blockchain descriptor");
         }
     }
 
-    // Unlink (remover do sistema)
     if (shm_unlink(TX_POOL_SHM) == 0) {
-        log_message("SHM: tx_pool removida com sucesso");
+        log_message("SHM: tx_pool unlinked successfully");
     } else {
-        log_message("ERRO: Falha ao remover tx_pool com shm_unlink");
+        log_message("ERROR: Failed to unlink tx_pool with shm_unlink");
     }
 
     if (shm_unlink(BLOCKCHAIN_SHM) == 0) {
-        log_message("SHM: blockchain removida com sucesso");
+        log_message("SHM: blockchain unlinked successfully");
     } else {
-        log_message("ERRO: Falha ao remover blockchain com shm_unlink");
+        log_message("ERROR: Failed to unlink blockchain with shm_unlink");
     }
 }
 
+// Wrapper to call the miner function
 void run_miner_process_wrapper(void *arg) {
     int num_threads = *((int*)arg);
     run_miner_process(num_threads);
 }
+
+// Create process and call the given function
 pid_t create_process(const char *name, ProcessFunctionWithArgs func, void *args) {
     pid_t pid = fork();
 
@@ -171,7 +163,7 @@ pid_t create_process(const char *name, ProcessFunctionWithArgs func, void *args)
         log_message("ERROR: Failed to create %s process", name);
         exit(EXIT_FAILURE);
     } else if (pid == 0) {
-        // Processo filho
+        // Child process
         if (func != NULL) {
             func(args);
         } else {
@@ -180,36 +172,36 @@ pid_t create_process(const char *name, ProcessFunctionWithArgs func, void *args)
         exit(EXIT_SUCCESS);
     }
 
-    log_message("INFO: %s process created with (PID: %d)", name, pid);
+    log_message("INFO: %s process created (PID: %d)", name, pid);
     return pid;
 }
 
-
 int main() {
-    Config config;
-    
-    // Registar o handler para SIGINT
+
+    // Register SIGINT handler
     signal(SIGINT, handle_sigint);
 
     log_init("DEIChain_log.txt");
-    load_config("config.cfg", &config);
+    load_config("config.cfg", &global_config);
+    init_shared_memory(&global_config);
 
-    init_shared_memory(&config);
-
-    miner_pid = create_process("Miner", run_miner_process_wrapper, &config.num_miners);
+    miner_pid = create_process("Miner", run_miner_process_wrapper, &global_config.num_miners);
     validator_pid = create_process("Validator", NULL, NULL);
     statistics_pid = create_process("Statistics", NULL, NULL);
 
-    // Loop principal: espera até que SIGINT seja capturado
+    // Main loop: wait for SIGINT
     while (!shutdown_requested) {
-        pause(); // Pode ser substituído por lógica útil
+        print_tx_pool((Transaction*)tx_pool_ptr, global_config.pool_size);
+        sleep(10);
+        //pause(); // Can be replaced by useful logic
     }
 
     waitpid(miner_pid, NULL, 0);
     waitpid(validator_pid, NULL, 0);
     waitpid(statistics_pid, NULL, 0);
-    // Fechar ferramentas de sincronização
-    log_message("INFO: System correctly shut down");
+
+    cleanup_shared_memory();
+    log_message("INFO: System shut down successfully");
     log_close();
 
     return 0;

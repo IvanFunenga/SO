@@ -13,6 +13,7 @@ static sem_t *log_sem = NULL;
 
 #define LOG_SEM_NAME "/log_mutex"
 
+// Initializes the logging system and semaphore
 void log_init(const char *filename) {
     if (filename) {
         log_file = fopen(filename, "a");
@@ -32,9 +33,10 @@ void log_init(const char *filename) {
     }
 }
 
+// Logs a formatted message with timestamp (to stdout and file)
 void log_message(const char *format, ...) {
     if (!log_initialized) {
-        fprintf(stderr, "ERRO: log_init() não foi chamado antes de log_message()\n");
+        fprintf(stderr, "ERROR: log_init() was not called before log_message()\n");
         return;
     }
 
@@ -63,6 +65,7 @@ void log_message(const char *format, ...) {
     sem_post(log_sem); // unlock
 }
 
+// Cleans up logging resources
 void log_close(void) {
     if (log_file) {
         fclose(log_file);
@@ -71,7 +74,7 @@ void log_close(void) {
 
     if (log_sem != NULL) {
         sem_close(log_sem);
-        sem_unlink(LOG_SEM_NAME);  // Remove do sistema
+        sem_unlink(LOG_SEM_NAME);  // Remove from system
         log_sem = NULL;
     }
 

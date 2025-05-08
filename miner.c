@@ -12,44 +12,47 @@ static pthread_t* miner_threads = NULL;
 static MinerThreadArgs* thread_args = NULL;
 static volatile sig_atomic_t running = 1;
 
+// Signal handler for SIGINT in the miner process
 void handle_sigint_miner(int sig) {
     (void)sig;
     running = 0;
     log_message("INFO: SIGINT received by miner process, stopping mining...");
 }
 
-void* miner_thread_func(void *arg){
+// Function executed by each miner thread
+void* miner_thread_func(void *arg) {
     MinerThreadArgs* args = (MinerThreadArgs*)arg;
     while (running) {
-
         log_message("INFO: Miner %d is working...", args->id);
-        sleep(1);  // Simula trabalho
+        sleep(1);  // Simulates work
     }
 
     log_message("INFO: Miner thread %d stopping", args->id);
     return NULL;
 }
 
-void init_miner(int nm, int ps, int tpb){
-    // Não vão ser usadas de momemto
+// Initializes miner threads and arguments
+void init_miner(int nm, int ps, int tpb) {
+    // ps and tpb are not used for now
     num_miners = nm;
     (void)ps;
     (void)tpb;
 
-    // alocação de memória 
+    // Allocate memory for thread handles and arguments
     miner_threads = malloc(num_miners * sizeof(pthread_t));
     thread_args = malloc(num_miners * sizeof(MinerThreadArgs));
 
-    if (!miner_threads || !thread_args){
+    if (!miner_threads || !thread_args) {
         log_message("ERROR: Failed to allocate memory for miner threads");
         exit(EXIT_FAILURE);
     }
 }
 
-void start_miner_threads(){
-    for (int i = 0; i < num_miners; i++){
+// Starts all miner threads
+void start_miner_threads() {
+    for (int i = 0; i < num_miners; i++) {
         thread_args[i].id = i;
-        if (pthread_create(&miner_threads[i], NULL, miner_thread_func, &thread_args[i]) != 0){
+        if (pthread_create(&miner_threads[i], NULL, miner_thread_func, &thread_args[i]) != 0) {
             log_message("ERROR: Failed to create miner thread %d", i);
             exit(EXIT_FAILURE);
         }
@@ -58,8 +61,9 @@ void start_miner_threads(){
     log_message("INFO: All threads were created!");
 }
 
+// Waits for all miner threads to finish and frees resources
 void stop_miner_threads() {
-    for (int i = 0; i < num_miners; i++){
+    for (int i = 0; i < num_miners; i++) {
         pthread_join(miner_threads[i], NULL);
     }
 
@@ -71,15 +75,15 @@ void stop_miner_threads() {
     log_message("INFO: Stopped all miner threads");
 }
 
+// Entry point for the miner process
 void run_miner_process(int num_threads) {
     signal(SIGINT, handle_sigint_miner);
-    log_message("INFO: Miner process started (PID %d)", getpid());
 
     init_miner(num_threads, 0, 0);
     start_miner_threads();
 
     while (running) {
-        sleep(1); // pode ser substituído por lógica mais útil
+        sleep(1); // Can be replaced with more useful logic
     }
 
     stop_miner_threads();

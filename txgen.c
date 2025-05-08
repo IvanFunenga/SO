@@ -3,30 +3,46 @@
 #include <unistd.h>
 #include <time.h>
 #include <signal.h>
+#include <sys/mman.h>
+#include <fcntl.h>
+#include <string.h>
 #include "logging.h"
+#include "common.h"  // Inclui Transaction, Config, TX_POOL_SHM
 
+Transaction* tx_pool = NULL;
+Config config;
 volatile sig_atomic_t stop_requested = 0;
 
-typedef struct {
-    int id;
-    int reward;
-    int sender_id;
-    int receiver_id;
-    int value;
-    time_t timestamp;
-    int aging;
-} Transaction;
-
+// Signal handler for SIGINT
 void handle_sigint(int sig) {
     (void)sig;
     stop_requested = 1;
 }
 
+// Inicializa ligação à memória partilhada da Transaction Pool
+void init_tx_pool_shm(int pool_size) {
+    int shm_fd = shm_open(TX_POOL_SHM, O_RDWR, 0666);
+    if (shm_fd == -1) {
+        perror("TxGen: shm_open failed");
+        exit(EXIT_FAILURE);
+    }
+
+    size_t size = sizeof(Transaction) * pool_size;
+    tx_pool = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
+    if (tx_pool == MAP_FAILED) {
+        perror("TxGen: mmap failed");
+        exit(EXIT_FAILURE);
+    }
+
+    log_message("TxGen: Ligado à SHM da Transaction Pool (%d transações)", pool_size);
+}
+
 int main(int argc, char *argv[]) {
     log_init("DEIChain_log.txt");
+    load_config("config.cfg", &config);
 
     if (argc != 3) {
-        log_message("ERRO: Uso incorreto. Sintaxe: %s <reward 1-3> <sleep_time_ms 200-3000>", argv[0]);
+        log_message("ERROR: Incorrect usage. Syntax: %s <reward 1-3> <sleep_time_ms 200-3000>", argv[0]);
         log_close();
         return EXIT_FAILURE;
     }
@@ -35,13 +51,13 @@ int main(int argc, char *argv[]) {
     int sleep_time = atoi(argv[2]);
 
     if (reward < 1 || reward > 3) {
-        log_message("ERRO: reward deve estar entre 1 e 3. Valor recebido: %d", reward);
+        log_message("ERROR: reward must be between 1 and 3. Received: %d", reward);
         log_close();
         return EXIT_FAILURE;
     }
 
     if (sleep_time < 200 || sleep_time > 3000) {
-        log_message("ERRO: sleep_time deve estar entre 200 e 3000 ms. Valor recebido: %d", sleep_time);
+        log_message("ERROR: sleep_time must be between 200 and 3000 ms. Received: %d", sleep_time);
         log_close();
         return EXIT_FAILURE;
     }
@@ -49,7 +65,10 @@ int main(int argc, char *argv[]) {
     srand(time(NULL) ^ getpid());
     signal(SIGINT, handle_sigint);
 
-    log_message("TxGen iniciado com reward = %d e sleep_time = %d ms", reward, sleep_time);
+    log_message("TxGen started with reward = %d and sleep_time = %d ms", reward, sleep_time);
+
+    // Liga à memória partilhada da transaction pool
+    init_tx_pool_shm(config.pool_size);
 
     int counter = 0;
 
@@ -65,10 +84,26 @@ int main(int argc, char *argv[]) {
         log_message("TRANSACTION | ID=%d | Reward=%d | From=%d | To=%d | Value=%d",
             t.id, t.reward, t.sender_id, t.receiver_id, t.value);
 
-        usleep(sleep_time * 1000); // Espera entre transações
+        // Publica transação na primeira posição livre da pool
+        int inserted = 0;
+        for (int i = 0; i < config.pool_size; i++) {
+            if (tx_pool[i].empty) {
+                tx_pool[i] = t;
+                tx_pool[i].empty = 0;  // marca como ocupada
+                log_message("TxGen: Inserida transação %d no slot %d", t.id, i);
+                inserted = 1;
+                break;
+            }
+        }
+
+        if (!inserted) {
+            log_message("TxGen: Pool cheia — transação %d descartada", t.id);
+        }
+
+        usleep(sleep_time * 1000); // Espera antes de gerar a próxima
     }
 
-    log_message("TxGen encerrado com SIGINT (PID=%d)", getpid());
+    log_message("TxGen terminated by SIGINT (PID=%d)", getpid());
     log_close();
     return EXIT_SUCCESS;
 }
