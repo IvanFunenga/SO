@@ -4,6 +4,7 @@
 #include <time.h>
 #include <signal.h>
 #include <sys/mman.h>
+#include <semaphore.h>
 #include <fcntl.h>
 #include <string.h>
 #include "logging.h"
@@ -35,6 +36,16 @@ void init_tx_pool_shm(int pool_size) {
     }
 
     log_message("TxGen: Ligado à SHM da Transaction Pool (%d transações)", pool_size);
+}
+
+sem_t* init_semaphore(const char* name) {
+    sem_t* sem = sem_open(name, 0);
+    if (sem == SEM_FAILED) {
+        log_message("ERROR: sem_open falhou para %s", name);
+        exit(EXIT_FAILURE);
+    }
+    log_message("INFO: Semáforo %s aberto com sucesso", name);
+    return sem;
 }
 
 int main(int argc, char *argv[]) {
@@ -69,6 +80,9 @@ int main(int argc, char *argv[]) {
 
     // Liga à memória partilhada da transaction pool
     init_tx_pool_shm(config.pool_size);
+    sem_t* sem_mutex = init_semaphore("/sem_mutex");
+    sem_t* sem_empty = init_semaphore("/sem_empty");
+    sem_t* sem_full  = init_semaphore("/sem_full");
 
     int counter = 0;
 

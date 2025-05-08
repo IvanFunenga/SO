@@ -7,12 +7,14 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <string.h>
+#include <semaphore.h>
 #include "logging.h"
 #include "common.h"
 #include "miner.h"
 
 #define TX_POOL_SHM "/tx_pool_shm"
 #define BLOCKCHAIN_SHM "/blockchain_shm"
+#define NUM_SEMAPHORES 3
 
 Config global_config;
 
@@ -25,7 +27,16 @@ static pid_t miner_pid = -1;
 static pid_t validator_pid = -1;
 static pid_t statistics_pid = -1;
 
+typedef struct {
+    sem_t* handle;
+    const char* name;
+} NamedSemaphore;
+
+NamedSemaphore semaphores[NUM_SEMAPHORES];
+int semaphore_count = 0;
+
 typedef void (*ProcessFunctionWithArgs)(void *);
+
 
 // Signal handler for SIGINT
 void handle_sigint(int sig) {
@@ -37,24 +48,27 @@ void handle_sigint(int sig) {
     }
 }
 
-void print_tx_pool(Transaction* pool, int pool_size) {
-    printf("\n=== Conteúdo da Transaction Pool ===\n");
-    for (int i = 0; i < pool_size; i++) {
-        if (pool[i].empty) {
-            printf("[Slot %d] VAZIO\n", i);
-        } else {
-            printf("[Slot %d] ID=%d | From=%d | To=%d | Value=%d | Reward=%d\n",
-                   i,
-                   pool[i].id,
-                   pool[i].sender_id,
-                   pool[i].receiver_id,
-                   pool[i].value,
-                   pool[i].reward);
-        }
+int create_named_semaphore(const char* name, unsigned int initial_value){
+    sem_t* sem = sem_open(name, O_CREAT, 0666, initial_value);
+    if (sem == SEM_FAILED) {
+        perror("Erro ao criar semáforo");
+        return -1;
     }
-    printf("=====================================\n");
+
+    semaphores[semaphore_count].handle = sem;
+    semaphores[semaphore_count].name = name;
+    semaphore_count++;
+
+    return 0;
 }
 
+void cleanup_named_semaphores() {
+    for (int i = 0; i < NUM_SEMAPHORES; i++) {
+        sem_close(semaphores[i].handle);
+        sem_unlink(semaphores[i].name);
+    }
+    semaphore_count = 0;
+}
 
 // Create and map shared memory
 void init_shared_memory(const Config* config) {
@@ -149,6 +163,24 @@ void cleanup_shared_memory() {
     }
 }
 
+void print_tx_pool(Transaction* pool, int pool_size) {
+    printf("\n=== Conteúdo da Transaction Pool ===\n");
+    for (int i = 0; i < pool_size; i++) {
+        if (pool[i].empty) {
+            printf("[Slot %d] VAZIO\n", i);
+        } else {
+            printf("[Slot %d] ID=%d | From=%d | To=%d | Value=%d | Reward=%d\n",
+                   i,
+                   pool[i].id,
+                   pool[i].sender_id,
+                   pool[i].receiver_id,
+                   pool[i].value,
+                   pool[i].reward);
+        }
+    }
+    printf("=====================================\n");
+}
+
 // Wrapper to call the miner function
 void run_miner_process_wrapper(void *arg) {
     int num_threads = *((int*)arg);
@@ -185,6 +217,11 @@ int main() {
     load_config("config.cfg", &global_config);
     init_shared_memory(&global_config);
 
+    create_named_semaphore("/sem_mutex", 1);
+    create_named_semaphore("/sem_empty", global_config.pool_size);
+    create_named_semaphore("/sem_full", 0);
+
+
     miner_pid = create_process("Miner", run_miner_process_wrapper, &global_config.num_miners);
     validator_pid = create_process("Validator", NULL, NULL);
     statistics_pid = create_process("Statistics", NULL, NULL);
@@ -201,6 +238,7 @@ int main() {
     waitpid(statistics_pid, NULL, 0);
 
     cleanup_shared_memory();
+    cleanup_named_semaphores();
     log_message("INFO: System shut down successfully");
     log_close();
 
