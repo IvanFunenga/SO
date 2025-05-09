@@ -98,6 +98,8 @@ int main(int argc, char *argv[]) {
         log_message("TRANSACTION | ID=%d | Reward=%d | From=%d | To=%d | Value=%d",
             t.id, t.reward, t.sender_id, t.receiver_id, t.value);
 
+        sem_wait(sem_empty); // Enquanto houver espaçoes livres
+        sem_wait(sem_mutex); // Lock para acesso à região crítica
         // Publica transação na primeira posição livre da pool
         int inserted = 0;
         for (int i = 0; i < config.pool_size; i++) {
@@ -110,12 +112,15 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (!inserted) {
-            log_message("TxGen: Pool cheia — transação %d descartada", t.id);
-        }
+        sem_post(sem_mutex); // Liberta o acesso à região crítica
+        sem_post(sem_full); // Informa que há uma nova transação disponível
 
         usleep(sleep_time * 1000); // Espera antes de gerar a próxima
     }
+
+    sem_close(sem_mutex);
+    sem_close(sem_empty);
+    sem_close(sem_full);
 
     log_message("TxGen terminated by SIGINT (PID=%d)", getpid());
     log_close();
