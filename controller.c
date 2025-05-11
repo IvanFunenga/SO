@@ -70,112 +70,116 @@ void cleanup_named_semaphores() {
     semaphore_count = 0;
 }
 
-// Create and map shared memory
-void init_shared_memory(const Config* config) {
-    size_t tx_pool_size = sizeof(Transaction) * config->pool_size;
-    size_t blockchain_size = sizeof(Block) * config->blockchain_blocks;
+SharedMemory create_shared_memory(const char* name, size_t size) {
+    SharedMemory shm;
+    shm.fd = shm_open(name, O_CREAT | O_RDWR, 0666);
+    if (shm.fd == -1) {
+        log_message("ERROR: shm_open failed for %s", name);
+        exit(EXIT_FAILURE);
+    }
 
-    // TX Pool
-    tx_pool_fd = shm_open(TX_POOL_SHM, O_CREAT | O_RDWR, 0666);
-    if (tx_pool_fd == -1) {
-        log_message("ERROR: Failed to create shared memory for tx_pool");
+    if (ftruncate(shm.fd, size) == -1) {
+        log_message("ERROR: ftruncate failed for %s", name);
         exit(EXIT_FAILURE);
     }
-    if (ftruncate(tx_pool_fd, tx_pool_size) == -1) {
-        log_message("ERROR: ftruncate failed for tx_pool");
-        exit(EXIT_FAILURE);
-    }
-    tx_pool_ptr = mmap(NULL, tx_pool_size, PROT_READ | PROT_WRITE, MAP_SHARED, tx_pool_fd, 0);
-    if (tx_pool_ptr == MAP_FAILED) {
-        log_message("ERROR: mmap failed for tx_pool");
-        exit(EXIT_FAILURE);
-    }
-    log_message("SHM: tx_pool created and mapped successfully (%zu bytes)", tx_pool_size);
 
-    Transaction* pool = (Transaction*)tx_pool_ptr;
+    shm.ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, shm.fd, 0);
+    if (shm.ptr == MAP_FAILED) {
+        log_message("ERROR: mmap failed for %s", name);
+        exit(EXIT_FAILURE);
+    }
+
+    log_message("SHM: %s created and mapped (%zu bytes)", name, size);
+    return shm;
+}
+
+// Funções auxiliares
+static void safe_munmap(void* addr, size_t size, const char* name) {
+    if (addr && munmap(addr, size) == 0) {
+        log_message("SHM: %s unmapped successfully", name);
+    } else {
+        log_message("ERROR: Failed to unmap %s", name);
+    }
+}
+
+static void safe_close(int fd, const char* name) {
+    if (fd != -1 && close(fd) == 0) {
+        log_message("SHM: %s descriptor closed successfully", name);
+    } else {
+        log_message("ERROR: Failed to close descriptor for %s", name);
+    }
+}
+
+static void safe_unlink(const char* name) {
+    if (shm_unlink(name) == 0) {
+        log_message("SHM: %s unlinked successfully", name);
+    } else {
+        log_message("ERROR: Failed to unlink %s", name);
+    }
+}
+
+// Inicialização da transaction pool
+void init_tx_pool_memory(const Config* config) {
+    size_t size = sizeof(TransactionPool) + sizeof(Transaction) * config->pool_size;
+    SharedMemory shm = create_shared_memory(TX_POOL_SHM, size);
+
+    tx_pool_ptr = shm.ptr;
+    tx_pool_fd = shm.fd;  // <-- CORRIGIDO AQUI
+
+    TransactionPool* pool = (TransactionPool*)tx_pool_ptr;
+    pool->current_block_id = 0;
     for (int i = 0; i < config->pool_size; i++) {
-        pool[i].empty = 1;
+        pool->transactions_pending_set[i].empty = 1;
     }
     log_message("SHM: tx_pool inicializada com todos os slots vazios");
-
-    // Blockchain
-    blockchain_fd = shm_open(BLOCKCHAIN_SHM, O_CREAT | O_RDWR, 0666);
-    if (blockchain_fd == -1) {
-        log_message("ERROR: Failed to create shared memory for blockchain");
-        exit(EXIT_FAILURE);
-    }
-    if (ftruncate(blockchain_fd, blockchain_size) == -1) {
-        log_message("ERROR: ftruncate failed for blockchain");
-        exit(EXIT_FAILURE);
-    }
-    blockchain_ptr = mmap(NULL, blockchain_size, PROT_READ | PROT_WRITE, MAP_SHARED, blockchain_fd, 0);
-    if (blockchain_ptr == MAP_FAILED) {
-        log_message("ERROR: mmap failed for blockchain");
-        exit(EXIT_FAILURE);
-    }
-    log_message("SHM: blockchain created and mapped successfully (%zu bytes)", blockchain_size);
 }
+
+// Inicialização da blockchain
+void init_blockchain_memory(const Config* config) {
+    size_t size = sizeof(Block) * config->blockchain_blocks;
+    SharedMemory shm = create_shared_memory(BLOCKCHAIN_SHM, size);
+
+    blockchain_ptr = shm.ptr;
+    blockchain_fd = shm.fd;  // <-- CORRIGIDO AQUI
+
+    // ... eventual lógica de init do blockchain
+}
+
 
 // Unmap and unlink shared memory
 void cleanup_shared_memory() {
-    if (tx_pool_ptr) {
-        if (munmap(tx_pool_ptr, sizeof(Transaction) * global_config.pool_size) == 0) {
-            log_message("SHM: tx_pool unmapped successfully");
-        } else {
-            log_message("ERROR: Failed to unmap tx_pool");
-        }
-    }
+    // Desfazer mappings
+    size_t tx_pool_size = sizeof(TransactionPool) + sizeof(Transaction) * global_config.pool_size;
+    size_t blockchain_size = sizeof(Block) * global_config.blockchain_blocks;
 
-    if (blockchain_ptr) {
-        if (munmap(blockchain_ptr, sizeof(Block)) == 0) {
-            log_message("SHM: blockchain unmapped successfully");
-        } else {
-            log_message("ERROR: Failed to unmap blockchain");
-        }
-    }
+    safe_munmap(tx_pool_ptr, tx_pool_size, "tx_pool");
+    safe_munmap(blockchain_ptr, blockchain_size, "blockchain");
 
-    if (tx_pool_fd != -1) {
-        if (close(tx_pool_fd) == 0) {
-            log_message("SHM: tx_pool descriptor closed successfully");
-        } else {
-            log_message("ERROR: Failed to close tx_pool descriptor");
-        }
-    }
+    // Fechar descritores
+    safe_close(tx_pool_fd, "tx_pool");
+    safe_close(blockchain_fd, "blockchain");
 
-    if (blockchain_fd != -1) {
-        if (close(blockchain_fd) == 0) {
-            log_message("SHM: blockchain descriptor closed successfully");
-        } else {
-            log_message("ERROR: Failed to close blockchain descriptor");
-        }
-    }
-
-    if (shm_unlink(TX_POOL_SHM) == 0) {
-        log_message("SHM: tx_pool unlinked successfully");
-    } else {
-        log_message("ERROR: Failed to unlink tx_pool with shm_unlink");
-    }
-
-    if (shm_unlink(BLOCKCHAIN_SHM) == 0) {
-        log_message("SHM: blockchain unlinked successfully");
-    } else {
-        log_message("ERROR: Failed to unlink blockchain with shm_unlink");
-    }
+    // Remover objetos de memória
+    safe_unlink(TX_POOL_SHM);
+    safe_unlink(BLOCKCHAIN_SHM);
 }
 
-void print_tx_pool(Transaction* pool, int pool_size) {
+void print_tx_pool(TransactionPool* pool, int pool_size) {
     printf("\n=== Conteúdo da Transaction Pool ===\n");
+    printf("Current Block ID: %d\n", pool->current_block_id);
     for (int i = 0; i < pool_size; i++) {
-        if (pool[i].empty) {
+        Transaction* t = &pool->transactions_pending_set[i];
+        if (t->empty) {
             printf("[Slot %d] VAZIO\n", i);
         } else {
-            printf("[Slot %d] ID=%d | From=%d | To=%d | Value=%d | Reward=%d\n",
+            printf("[Slot %d] ID=%d | From=%d | To=%d | Value=%d | Reward=%d | Aging=%d\n",
                    i,
-                   pool[i].id,
-                   pool[i].sender_id,
-                   pool[i].receiver_id,
-                   pool[i].value,
-                   pool[i].reward);
+                   t->id,
+                   t->sender_id,
+                   t->receiver_id,
+                   t->value,
+                   t->reward,
+                   t->age);
         }
     }
     printf("=====================================\n");
@@ -215,8 +219,9 @@ int main() {
 
     log_init("DEIChain_log.txt");
     load_config("config.cfg", &global_config);
-    init_shared_memory(&global_config);
-
+    
+    init_tx_pool_memory(&global_config);
+    init_blockchain_memory(&global_config);
     create_named_semaphore("/sem_mutex", 1);
     create_named_semaphore("/sem_empty", global_config.pool_size);
     create_named_semaphore("/sem_full", 0);
@@ -228,7 +233,7 @@ int main() {
 
     // Main loop: wait for SIGINT
     while (!shutdown_requested) {
-        print_tx_pool((Transaction*)tx_pool_ptr, global_config.pool_size);
+        print_tx_pool((TransactionPool*)tx_pool_ptr, global_config.pool_size);
         sleep(10);
         //pause(); // Can be replaced by useful logic
     }
@@ -237,8 +242,8 @@ int main() {
     waitpid(validator_pid, NULL, 0);
     waitpid(statistics_pid, NULL, 0);
 
-    cleanup_shared_memory();
     cleanup_named_semaphores();
+    cleanup_shared_memory();
     log_message("INFO: System shut down successfully");
     log_close();
 

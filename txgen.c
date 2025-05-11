@@ -10,7 +10,7 @@
 #include "logging.h"
 #include "common.h"  // Inclui Transaction, Config, TX_POOL_SHM
 
-Transaction* tx_pool = NULL;
+TransactionPool* tx_pool = NULL;
 Config config;
 volatile sig_atomic_t stop_requested = 0;
 
@@ -28,7 +28,7 @@ void init_tx_pool_shm(int pool_size) {
         exit(EXIT_FAILURE);
     }
 
-    size_t size = sizeof(Transaction) * pool_size;
+    size_t size = sizeof(TransactionPool) + sizeof(Transaction) * pool_size;
     tx_pool = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
     if (tx_pool == MAP_FAILED) {
         perror("TxGen: mmap failed");
@@ -37,6 +37,7 @@ void init_tx_pool_shm(int pool_size) {
 
     log_message("TxGen: Ligado à SHM da Transaction Pool (%d transações)", pool_size);
 }
+
 
 sem_t* init_semaphore(const char* name) {
     sem_t* sem = sem_open(name, 0);
@@ -93,7 +94,7 @@ int main(int argc, char *argv[]) {
         t.sender_id = getpid();
         t.receiver_id = rand() % 1000 + 1;
         t.value = rand() % 100 + 1;
-        t.aging = 0;
+        t.age = 0;
 
         log_message("TRANSACTION | ID=%d | Reward=%d | From=%d | To=%d | Value=%d",
             t.id, t.reward, t.sender_id, t.receiver_id, t.value);
@@ -101,13 +102,12 @@ int main(int argc, char *argv[]) {
         sem_wait(sem_empty); // Enquanto houver espaçoes livres
         sem_wait(sem_mutex); // Lock para acesso à região crítica
         // Publica transação na primeira posição livre da pool
-        int inserted = 0;
         for (int i = 0; i < config.pool_size; i++) {
-            if (tx_pool[i].empty) {
-                tx_pool[i] = t;
-                tx_pool[i].empty = 0;  // marca como ocupada
+            if (tx_pool->transactions_pending_set[i].empty) {
+                tx_pool->transactions_pending_set[i] = t;
+                tx_pool->transactions_pending_set[i].empty = 0;
+
                 log_message("TxGen: Inserida transação %d no slot %d", t.id, i);
-                inserted = 1;
                 break;
             }
         }

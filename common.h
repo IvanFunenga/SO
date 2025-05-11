@@ -26,9 +26,19 @@ typedef struct {
     int receiver_id;
     int value;
     time_t timestamp;
-    int aging;
+    int age;
     int empty; // 1 = vazio, 0 = ocupado
 } Transaction;
+
+typedef struct {
+    void* ptr;
+    int fd;
+} SharedMemory;
+
+typedef struct {
+    int current_block_id;
+    Transaction transactions_pending_set[]; // tamanho definido dinamicamente
+} TransactionPool;
 
 // Estrutura base de bloco (pode ser expandida)
 typedef struct {
