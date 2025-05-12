@@ -46,3 +46,41 @@ void receive_block_from_miner() {
     process_received_block(&block);
 }
 
+int validate_block(TransactionBlock* block) {
+    // 1. Verificar pow (a implementar)
+
+    // 2. Verificar se o bloco referencia corretamente o último bloco da blockchain
+    TransactionPool* pool = (TransactionPool*)tx_pool_ptr;
+
+    // Verifica se o hash do bloco anterior é o mesmo que o ID do bloco atual na tx_pool
+    char expected_previous_hash[HASH_SIZE];
+    snprintf(expected_previous_hash, HASH_SIZE, "%d", pool->current_block_hash);  
+    
+    if (strcmp(block->previous_block_hash, expected_previous_hash) != 0) {
+        log_message("ERROR: Bloco não está corretamente encadeado com o último bloco da tx_pool.");
+        return -1;  // Indica que a validação falhou
+    }
+
+    // 3. Verificar se as transações ainda estão presentes na tx_pool
+    for (int i = 0; i < global_config.transactions_per_block; i++) {
+        if (!is_transaction_in_pool(block->transactions.id)) {
+            log_message("ERROR: Transação %d não encontrada na pool.", block->transactions.id);
+            return -1;  // Indica que a validação falhou
+        }
+    }
+
+    // Se todas as verificações passarem, a validação foi bem-sucedida
+    log_message("VALIDATOR: Bloco validado com sucesso (ID: %s)", block->txb_id);
+    return 0;  // Sucesso
+}
+
+// Função para verificar se a transação está na pool
+int is_transaction_in_pool(int tx_id) {
+    TransactionPool* pool = (TransactionPool*)tx_pool_ptr;
+    for (int i = 0; i < global_config.pool_size; i++) {
+        if (!pool->transactions_pending_set[i].empty && pool->transactions_pending_set[i].id == tx_id) {
+            return 1;  // Transação encontrada na pool
+        }
+    }
+    return 0;  // Transação não encontrada na pool
+}

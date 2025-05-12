@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -8,7 +9,6 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <errno.h>
-#include <string.h>
 #include <semaphore.h>
 #include "logging.h"
 #include "common.h"
@@ -18,10 +18,7 @@
 #define BLOCKCHAIN_SHM "/blockchain_shm"
 #define NUM_SEMAPHORES 3
 
-Config global_config;
-
-int tx_pool_fd = -1, blockchain_fd = -1;
-void* tx_pool_ptr = NULL;
+int blockchain_fd = -1;
 void* blockchain_ptr = NULL;
 
 volatile sig_atomic_t shutdown_requested = 0;
@@ -72,29 +69,6 @@ void cleanup_named_semaphores() {
     semaphore_count = 0;
 }
 
-SharedMemory create_shared_memory(const char* name, size_t size) {
-    SharedMemory shm;
-    shm.fd = shm_open(name, O_CREAT | O_RDWR, 0666);
-    if (shm.fd == -1) {
-        log_message("ERROR: shm_open failed for %s", name);
-        exit(EXIT_FAILURE);
-    }
-
-    if (ftruncate(shm.fd, size) == -1) {
-        log_message("ERROR: ftruncate failed for %s", name);
-        exit(EXIT_FAILURE);
-    }
-
-    shm.ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, shm.fd, 0);
-    if (shm.ptr == MAP_FAILED) {
-        log_message("ERROR: mmap failed for %s", name);
-        exit(EXIT_FAILURE);
-    }
-
-    log_message("SHM: %s created and mapped (%zu bytes)", name, size);
-    return shm;
-}
-
 // Funções auxiliares
 static void safe_munmap(void* addr, size_t size, const char* name) {
     if (addr && munmap(addr, size) == 0) {
@@ -120,22 +94,6 @@ static void safe_unlink(const char* name) {
     }
 }
 
-// Inicialização da transaction pool
-void init_tx_pool_memory(const Config* config) {
-    size_t size = sizeof(TransactionPool) + sizeof(Transaction) * config->pool_size;
-    SharedMemory shm = create_shared_memory(TX_POOL_SHM, size);
-
-    tx_pool_ptr = shm.ptr;
-    tx_pool_fd = shm.fd;  // <-- CORRIGIDO AQUI
-
-    TransactionPool* pool = (TransactionPool*)tx_pool_ptr;
-    pool->current_block_id = 0;
-    for (int i = 0; i < config->pool_size; i++) {
-        pool->transactions_pending_set[i].empty = 1;
-    }
-    log_message("SHM: tx_pool inicializada com todos os slots vazios");
-}
-
 // Inicialização da blockchain
 void init_blockchain_memory(const Config* config) {
     // Calcular o tamanho de um bloco (baseado no número de transações por bloco)
@@ -152,13 +110,9 @@ void init_blockchain_memory(const Config* config) {
     // Inicializar blocos na memória
     for (int i = 0; i < config->blockchain_blocks; i++) {
         TransactionBlock* block = (TransactionBlock*)((char*)blockchain_ptr + i * block_size);
-        
-        // Definir o ID do bloco anterior
-        if (i == 0) {
-            strcpy(block->previous_block_hash, "0000000000000000000000000000000000000000000000000000000000000000");
 
-        }
-        block->nonce = 0;  // Definir o nonce (inicialmente 0)
+        // Inicializar o nonce (inicialmente 0)
+        block->nonce = 0;
     }
 
     log_message("SHM: Blockchain created and mapped successfully with %zu blocks", config->blockchain_blocks);
@@ -209,7 +163,7 @@ void cleanup_named_pipe(){
 
 void print_tx_pool(TransactionPool* pool, int pool_size) {
     printf("\n=== Conteúdo da Transaction Pool ===\n");
-    printf("Current Block ID: %d\n", pool->current_block_id);
+    printf("Current Block ID: %s\n", pool->current_block_hash);
     for (int i = 0; i < pool_size; i++) {
         Transaction* t = &pool->transactions_pending_set[i];
         if (t->empty) {
@@ -256,14 +210,13 @@ pid_t create_process(const char *name, ProcessFunctionWithArgs func, void *args)
 }
 
 int main() {
-
     // Register SIGINT handler
     signal(SIGINT, handle_sigint);
 
     log_init("DEIChain_log.txt");
     load_config("config.cfg", &global_config);
     
-    init_tx_pool_memory(&global_config);
+    create_tx_pool_memory(&global_config);
     init_blockchain_memory(&global_config);
     create_named_semaphore("/sem_mutex", 1);
     create_named_semaphore("/sem_empty", global_config.pool_size);
