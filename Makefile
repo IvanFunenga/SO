@@ -3,8 +3,8 @@ CFLAGS = -Wall -Wextra -g
 LDFLAGS = -pthread
 
 # Ficheiros de origem
-SRC_COMMON = logging.c miner.c
-HDR_COMMON = logging.h miner.h
+SRC_COMMON = logging.c miner.c common.c
+HDR_COMMON = logging.h miner.h common.h
 
 # Programa 1: controller
 CONTROLLER_SRC = controller.c $(SRC_COMMON)
@@ -12,7 +12,7 @@ CONTROLLER_OBJ = $(CONTROLLER_SRC:.c=.o)
 CONTROLLER_BIN = controller
 
 # Programa 2: txgen
-TXGEN_SRC = txgen.c logging.c
+TXGEN_SRC = txgen.c logging.c common.c
 TXGEN_OBJ = $(TXGEN_SRC:.c=.o)
 TXGEN_BIN = txgen
 

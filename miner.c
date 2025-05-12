@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <fcntl.h>     
 #include <unistd.h>
+#include "common.h"
 #include "miner.h"
 #include "logging.h"
 
