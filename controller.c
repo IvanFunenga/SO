@@ -6,6 +6,8 @@
 #include <sys/wait.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
+#include <errno.h>
 #include <string.h>
 #include <semaphore.h>
 #include "logging.h"
@@ -136,15 +138,35 @@ void init_tx_pool_memory(const Config* config) {
 
 // Inicialização da blockchain
 void init_blockchain_memory(const Config* config) {
-    size_t size = sizeof(Block) * config->blockchain_blocks;
-    SharedMemory shm = create_shared_memory(BLOCKCHAIN_SHM, size);
+    // Calcular o tamanho de um bloco (baseado no número de transações por bloco)
+    size_t block_size = sizeof(Block) + sizeof(Transaction) * config->transactions_per_block;
 
+    // Calcular o tamanho total da blockchain
+    size_t blockchain_size = block_size * config->blockchain_blocks;
+
+    // Criar a memória compartilhada para a blockchain
+    SharedMemory shm = create_shared_memory(BLOCKCHAIN_SHM, blockchain_size);
     blockchain_ptr = shm.ptr;
-    blockchain_fd = shm.fd;  // <-- CORRIGIDO AQUI
+    blockchain_fd = shm.fd;
 
-    // ... eventual lógica de init do blockchain
+    // Inicializar blocos na memória
+    for (int i = 0; i < config->blockchain_blocks; i++) {
+        Block* block = (Block*)((char*)blockchain_ptr + i * block_size);
+        
+        // Inicializar o número de transações
+        block->num_transactions = 0;  // Inicializa o número de transações
+        
+        // Definir o ID do bloco anterior
+        if (i == 0) {
+            block->previous_block_id = -1;  // Para o primeiro bloco, não há bloco anterior
+        } else {
+            block->previous_block_id = i - 1;  // Para os outros blocos, o ID é o anterior
+        }
+        block->nonce = 0;  // Definir o nonce (inicialmente 0)
+    }
+
+    log_message("SHM: Blockchain created and mapped successfully with %zu blocks", config->blockchain_blocks);
 }
-
 
 // Unmap and unlink shared memory
 void cleanup_shared_memory() {
@@ -162,6 +184,31 @@ void cleanup_shared_memory() {
     // Remover objetos de memória
     safe_unlink(TX_POOL_SHM);
     safe_unlink(BLOCKCHAIN_SHM);
+}
+
+void create_named_pipe() {
+        if (mkfifo(VALIDATOR_FIFO, O_CREAT|O_EXCL|0600)<0){
+            if (errno != EEXIST) {
+                log_message("ERROR: Failed to create FIFO %s: %s", VALIDATOR_FIFO, strerror(errno));
+                exit(0);
+            } else {
+                log_message("INFO: FIFO %s already exists", VALIDATOR_FIFO);
+            }
+        } else {
+            log_message("INFO: FIFO %s created successfully", VALIDATOR_FIFO);
+        }
+}
+
+void cleanup_named_pipe(){
+    if(unlink(VALIDATOR_FIFO) == 0){
+        log_message("INFO: FIFO %s removed successfully", VALIDATOR_FIFO);
+    } else {
+        if (errno == ENOENT){
+            log_message("INFO: FIFO %s already removed or not found", VALIDATOR_FIFO);
+        } else {
+            log_message("ERROR: Failed to unlink FIFO %s: %s", VALIDATOR_FIFO, strerror(errno));
+        }
+    }
 }
 
 void print_tx_pool(TransactionPool* pool, int pool_size) {
@@ -225,7 +272,7 @@ int main() {
     create_named_semaphore("/sem_mutex", 1);
     create_named_semaphore("/sem_empty", global_config.pool_size);
     create_named_semaphore("/sem_full", 0);
-
+    create_named_pipe();
 
     miner_pid = create_process("Miner", run_miner_process_wrapper, &global_config.num_miners);
     validator_pid = create_process("Validator", NULL, NULL);
@@ -244,6 +291,7 @@ int main() {
 
     cleanup_named_semaphores();
     cleanup_shared_memory();
+    cleanup_named_pipe();
     log_message("INFO: System shut down successfully");
     log_close();
 

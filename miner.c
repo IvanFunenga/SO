@@ -3,6 +3,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include <stdbool.h>
+#include <fcntl.h>     
 #include <unistd.h>
 #include "miner.h"
 #include "logging.h"
@@ -17,6 +18,23 @@ void handle_sigint_miner(int sig) {
     (void)sig;
     running = 0;
     log_message("INFO: SIGINT received by miner process, stopping mining...");
+}
+
+void send_block_to_validator(Block* b) {
+    int fd = open(VALIDATOR_FIFO, O_WRONLY);
+    if (fd == -1) {
+        log_message("MINER: Failed to open FIFO for writing");
+        return;
+    }
+
+    ssize_t bytes_written = write(fd, b, sizeof(Block));
+    if (bytes_written == sizeof(Block)) {
+        log_message("MINER: Block sent to Validator (ID=%d)", b->id);
+    } else {
+        log_message("ERROR: Incomplete block write to Validator FIFO");
+    }
+
+    close(fd);
 }
 
 // Function executed by each miner thread

@@ -9,6 +9,7 @@
 // SHM Names
 #define TX_POOL_SHM "/tx_pool_shm"
 #define BLOCKCHAIN_SHM "/blockchain_shm"
+#define VALIDATOR_FIFO "/tmp/validator_fifo"
 
 // Configuração global
 typedef struct {
@@ -31,6 +32,15 @@ typedef struct {
 } Transaction;
 
 typedef struct {
+    int id;
+    int miner_id;
+    int previous_block_id;
+    int nonce;
+    int num_transactions;
+    Transaction transactions[]; // ou dinâmico se suportares
+} Block;
+
+typedef struct {
     void* ptr;
     int fd;
 } SharedMemory;
@@ -40,10 +50,6 @@ typedef struct {
     Transaction transactions_pending_set[]; // tamanho definido dinamicamente
 } TransactionPool;
 
-// Estrutura base de bloco (pode ser expandida)
-typedef struct {
-    int test;
-} Block;
 
 void load_config(const char *filename, Config *config) {
     FILE* file = fopen(filename, "r");
