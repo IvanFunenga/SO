@@ -139,7 +139,7 @@ void init_tx_pool_memory(const Config* config) {
 // Inicialização da blockchain
 void init_blockchain_memory(const Config* config) {
     // Calcular o tamanho de um bloco (baseado no número de transações por bloco)
-    size_t block_size = sizeof(Block) + sizeof(Transaction) * config->transactions_per_block;
+    size_t block_size = sizeof(TransactionBlock) + sizeof(Transaction) * config->transactions_per_block;
 
     // Calcular o tamanho total da blockchain
     size_t blockchain_size = block_size * config->blockchain_blocks;
@@ -151,16 +151,12 @@ void init_blockchain_memory(const Config* config) {
 
     // Inicializar blocos na memória
     for (int i = 0; i < config->blockchain_blocks; i++) {
-        Block* block = (Block*)((char*)blockchain_ptr + i * block_size);
-        
-        // Inicializar o número de transações
-        block->num_transactions = 0;  // Inicializa o número de transações
+        TransactionBlock* block = (TransactionBlock*)((char*)blockchain_ptr + i * block_size);
         
         // Definir o ID do bloco anterior
         if (i == 0) {
-            block->previous_block_id = -1;  // Para o primeiro bloco, não há bloco anterior
-        } else {
-            block->previous_block_id = i - 1;  // Para os outros blocos, o ID é o anterior
+            strcpy(block->previous_block_hash, "0000000000000000000000000000000000000000000000000000000000000000");
+
         }
         block->nonce = 0;  // Definir o nonce (inicialmente 0)
     }
@@ -172,7 +168,7 @@ void init_blockchain_memory(const Config* config) {
 void cleanup_shared_memory() {
     // Desfazer mappings
     size_t tx_pool_size = sizeof(TransactionPool) + sizeof(Transaction) * global_config.pool_size;
-    size_t blockchain_size = sizeof(Block) * global_config.blockchain_blocks;
+    size_t blockchain_size = sizeof(TransactionBlock) * global_config.blockchain_blocks;
 
     safe_munmap(tx_pool_ptr, tx_pool_size, "tx_pool");
     safe_munmap(blockchain_ptr, blockchain_size, "blockchain");
