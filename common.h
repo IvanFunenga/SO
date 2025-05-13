@@ -62,6 +62,8 @@ extern TransactionPool* tx_pool_ptr;      // Declare as extern
 
 // Function declaration
 void load_config(const char *filename, Config *config);
+int open_fifo(const char* fifo_path, int mode);
+void close_fifo(int fifo_fd, const char* fifo_path);
 void open_tx_pool_memory();
 //static inline size_t get_transaction_block_size();
 

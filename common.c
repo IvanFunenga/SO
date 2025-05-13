@@ -1,10 +1,12 @@
-#include "common.h"
-#include "logging.h"
-#include <sys/mman.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <errno.h>
-#include <stdlib.h>
+#include "common.h"     // Para as definições do seu projeto
+#include "logging.h"    // Para a função log_message()
+#include <sys/mman.h>   // Para shm_open, mmap
+#include <fcntl.h>      // Para open, O_RDWR, etc.
+#include <unistd.h>     // Para read, write, close
+#include <errno.h>      // Para manipulação de erros
+#include <stdlib.h>     // Para funções de alocação de memória e exit
+#include <string.h>     // Para manipulação de strings
+#include <stdio.h> 
 
 int tx_pool_fd = -1;           // Actual definition
 TransactionPool* tx_pool_ptr = NULL;      
@@ -38,6 +40,28 @@ void load_config(const char *filename, Config *config) {
     log_message("CONFIG: TRANSACTIONS_PER_BLOCK = %d", config->transactions_per_block);
     log_message("CONFIG: BLOCKCHAIN_BLOCKS = %d", config->blockchain_blocks);
 } 
+
+int open_fifo(const char* fifo_path, int mode) {
+    int fifo_fd = open(fifo_path, mode);
+    if (fifo_fd == -1) {
+        log_message("ERROR: Failed to open FIFO %s with mode %d: %s", fifo_path, mode, strerror(errno));
+        return -1;
+    }
+    log_message("INFO: FIFO %s opened successfully with mode %d", fifo_path, mode);
+    return fifo_fd;
+}
+
+void close_fifo(int fifo_fd, const char* fifo_path) {
+    if (fifo_fd != -1) {
+        if (close(fifo_fd) == 0) {
+            log_message("INFO: FIFO %s closed successfully", fifo_path);
+        } else {
+            log_message("ERROR: Failed to close FIFO %s: %s", fifo_path, strerror(errno));
+        }
+    } else {
+        log_message("ERROR: FIFO %s was not opened or invalid FD", fifo_path);
+    }
+}
 
 // Função para abrir a memória compartilhada da tx_pool (sem criá-la)
 void open_tx_pool_memory() {

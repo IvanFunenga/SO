@@ -297,7 +297,7 @@ int main() {
 
     log_init("DEIChain_log.txt");
     load_config("config.cfg", &global_config);
-    
+ 
     create_tx_pool_memory(&global_config);
     create_blockchain_memory(&global_config);
     create_named_semaphore("/sem_mutex", 1);
@@ -306,7 +306,7 @@ int main() {
     create_named_pipe();
 
     miner_pid = create_process("Miner", run_miner_process_wrapper, &global_config.num_miners);
-    validator_pid = create_process("Validator", run_validator_process_wrapper, &global_config);
+    validator_pid = create_process("Validator", NULL, NULL);
     statistics_pid = create_process("Statistics", NULL, NULL);
 
     // Main loop: wait for SIGINT

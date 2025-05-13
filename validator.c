@@ -14,22 +14,6 @@ void handle_sigint_validator(int sig) {
     log_message("INFO: SIGINT received by validator process, stopping validation...");
 }
 
-void open_fifo_for_reading() {
-    fd = open(VALIDATOR_FIFO, O_RDONLY);
-    if (fd == -1) {
-        log_message("VALIDATOR: Failed to open FIFO for reading");
-        exit(EXIT_FAILURE);  // Ou outro tipo de tratamento de erro adequado
-    }
-    log_message("VALIDATOR: FIFO opened successfully for reading");
-}
-
-void close_fifo() {
-    if (fd != -1) {
-        close(fd);
-        log_message("VALIDATOR: FIFO closed successfully");
-    }
-}
-
 // Função para verificar se a transação está na pool
 int is_transaction_in_pool(int tx_id) {
     TransactionPool* pool = (TransactionPool*)tx_pool_ptr;
@@ -99,13 +83,14 @@ void cleanup_validator_resources() {
     // Detach from shared memory
     if (tx_pool_ptr != NULL) {
         munmap(tx_pool_ptr, sizeof(TransactionPool) + sizeof(Transaction) * global_config.pool_size);
-        tx_pool_ptr = NULL;
     }
+    log_message("VALIDATOR: resources cleaned");
 
     // Close other resources (e.g., semaphores) if the validator opened them
 }
 // Continuously listen for blocks from the miner
 
+/*
 void listen_for_blocks(Config* config) {
     (void)config;
     log_message("VALIDATOR: Waiting for blocks from miner...");
@@ -143,4 +128,20 @@ void listen_for_blocks(Config* config) {
     // Fechar o FIFO quando terminar (neste caso, o programa pode ser finalizado ou parado)
     close_fifo();
     cleanup_validator_resources();
+}
+*/
+
+void listen_for_blocks(Config* config) {
+    (void)config;
+
+    signal(SIGINT, handle_sigint_validator);
+
+    // Continuamente receber blocos até que uma condição de parada seja atendida
+    while (running_validator) {
+        // Log de progresso para confirmar que o validador está aguardando por blocos
+        log_message("VALIDATOR: Waiting for the next block...");
+        sleep(10);
+    }
+
+    // Fechar o FIFO quando terminar (neste caso, o programa pode ser finalizado ou parado)
 }
