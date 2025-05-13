@@ -6,8 +6,11 @@ LDFLAGS = -pthread
 SRC_COMMON = logging.c miner.c common.c
 HDR_COMMON = logging.h miner.h common.h
 
+# Add validator.c to the source files
+SRC_VALIDATOR = validator.c  # Add validator.c to the list of source files
+
 # Programa 1: controller
-CONTROLLER_SRC = controller.c $(SRC_COMMON)
+CONTROLLER_SRC = controller.c $(SRC_COMMON) $(SRC_VALIDATOR)  # Include validator.c here
 CONTROLLER_OBJ = $(CONTROLLER_SRC:.c=.o)
 CONTROLLER_BIN = controller
 

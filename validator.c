@@ -1,19 +1,25 @@
 #include "common.h"  
 #include "logging.h"
+#include "validator.h"
 #include <unistd.h>   
 #include <fcntl.h>  
+#include <stdlib.h>
 
-int fd = -1;
 
+int fd = -1;  // File descriptor for reading from FIFO
+
+// Open the FIFO for reading (used by the validator)
 void open_fifo_for_reading() {
     fd = open(VALIDATOR_FIFO, O_RDONLY);
     if (fd == -1) {
         log_message("VALIDATOR: Failed to open FIFO for reading");
-        exit(EXIT_FAILURE);  // Ou outro tipo de tratamento de erro adequado
+        perror("Error opening FIFO");
+        exit(EXIT_FAILURE);  // Or handle the error as appropriate
     }
     log_message("VALIDATOR: FIFO opened successfully for reading");
 }
 
+// Close the FIFO when done
 void close_fifo() {
     if (fd != -1) {
         close(fd);
@@ -21,66 +27,69 @@ void close_fifo() {
     }
 }
 
+// Receive a block from the miner through the FIFO
 void receive_block_from_miner() {
-
     if (fd == -1) {
         log_message("ERROR: FIFO is not open for reading");
         return;
     }
 
-    // Definir o bloco que vai ser preenchido
+    // Define the block that will be filled by the received data
     TransactionBlock block;
 
-    // Tentar ler o bloco completo (tamanho da estrutura TransactionBlock)
+    // Try to read the block completely (size of TransactionBlock)
     ssize_t bytes_read = read(fd, &block, sizeof(TransactionBlock));
 
-    // Verificar se o número de bytes lidos é igual ao tamanho da estrutura do bloco
+    // If the number of bytes read is not equal to the block size, it's an error
     if (bytes_read != sizeof(TransactionBlock)) {
         log_message("ERROR: Incomplete block received. Expected %zu bytes, got %zd", sizeof(TransactionBlock), bytes_read);
-        return;  // Trate a falha como preferir
+        return;  // Handle failure appropriately
     }
 
+    // Successfully received the block, log its ID
     log_message("VALIDATOR: Block received from miner (ID: %s)", block.txb_id);
+    log_message("VALIDATOR: Previous Block Hash: %s", block.previous_block_hash);
+    log_message("VALIDATOR: Timestamp: %ld", block.timestamp);
+    log_message("VALIDATOR: Nonce: %u", block.nonce);
 
-    // Processar o bloco (Exemplo: adicionar ao blockchain ou validar)
-    process_received_block(&block);
-}
+    // Print the transactions inside the block
+    log_message("VALIDATOR: Printing transactions in the block:");
 
-int validate_block(TransactionBlock* block) {
-    // 1. Verificar pow (a implementar)
+    for (int i = 0; i < 50; i++) {  // Assuming the block can have up to 50 transactions
+        // Check if the transaction is not empty
+        if (block.transactions[i].id != 0) {  // Only print non-empty transactions
+            Transaction *t = &block.transactions[i];
 
-    // 2. Verificar se o bloco referencia corretamente o último bloco da blockchain
-    TransactionPool* pool = (TransactionPool*)tx_pool_ptr;
-
-    // Verifica se o hash do bloco anterior é o mesmo que o ID do bloco atual na tx_pool
-    char expected_previous_hash[HASH_SIZE];
-    snprintf(expected_previous_hash, HASH_SIZE, "%d", pool->current_block_hash);  
-    
-    if (strcmp(block->previous_block_hash, expected_previous_hash) != 0) {
-        log_message("ERROR: Bloco não está corretamente encadeado com o último bloco da tx_pool.");
-        return -1;  // Indica que a validação falhou
-    }
-
-    // 3. Verificar se as transações ainda estão presentes na tx_pool
-    for (int i = 0; i < global_config.transactions_per_block; i++) {
-        if (!is_transaction_in_pool(block->transactions.id)) {
-            log_message("ERROR: Transação %d não encontrada na pool.", block->transactions.id);
-            return -1;  // Indica que a validação falhou
+            // Log the transaction details
+            log_message("Transaction %d: ID = %d, Reward = %d, From = %d, To = %d, Value = %d, Age = %d",
+                        i + 1, t->id, t->reward, t->sender_id, t->receiver_id, t->value, t->age);
         }
     }
 
-    // Se todas as verificações passarem, a validação foi bem-sucedida
-    log_message("VALIDATOR: Bloco validado com sucesso (ID: %s)", block->txb_id);
-    return 0;  // Sucesso
+    // Process the received block (e.g., add to blockchain or validate)
+    //process_received_block(&block);
 }
 
-// Função para verificar se a transação está na pool
-int is_transaction_in_pool(int tx_id) {
-    TransactionPool* pool = (TransactionPool*)tx_pool_ptr;
-    for (int i = 0; i < global_config.pool_size; i++) {
-        if (!pool->transactions_pending_set[i].empty && pool->transactions_pending_set[i].id == tx_id) {
-            return 1;  // Transação encontrada na pool
-        }
+
+// Continuously listen for blocks from the miner
+void listen_for_blocks(Config* config) {
+    log_message("VALIDATOR: Waiting for blocks from miner...");
+
+    // Open FIFO for reading (open only once)
+    open_fifo_for_reading();
+
+    // Continuously receive blocks until a stop condition is met
+    while (1) {
+        // Log progress to confirm the validator is waiting for blocks
+        log_message("VALIDATOR: Waiting for the next block...");
+
+        // Receive a block from the miner
+        receive_block_from_miner();
+
+        // Optional: Add a small delay to avoid flooding logs or excessive CPU usage
+         sleep(1);  // Uncomment if needed to reduce load
     }
-    return 0;  // Transação não encontrada na pool
+
+    // Close the FIFO when done (in this case, the program might be killed or stopped)
+    close_fifo();
 }
