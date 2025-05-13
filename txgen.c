@@ -10,8 +10,6 @@
 #include "logging.h"
 #include "common.h"  // Inclui Transaction, Config, TX_POOL_SHM
 
-TransactionPool* tx_pool = NULL;
-Config config;
 volatile sig_atomic_t stop_requested = 0;
 
 // Signal handler for SIGINT
@@ -19,25 +17,6 @@ void handle_sigint(int sig) {
     (void)sig;
     stop_requested = 1;
 }
-
-// Inicializa ligação à memória partilhada da Transaction Pool
-void init_tx_pool_shm(int pool_size) {
-    int shm_fd = shm_open(TX_POOL_SHM, O_RDWR, 0666);
-    if (shm_fd == -1) {
-        perror("TxGen: shm_open failed");
-        exit(EXIT_FAILURE);
-    }
-
-    size_t size = sizeof(TransactionPool) + sizeof(Transaction) * pool_size;
-    tx_pool = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_SHARED, shm_fd, 0);
-    if (tx_pool == MAP_FAILED) {
-        perror("TxGen: mmap failed");
-        exit(EXIT_FAILURE);
-    }
-
-    log_message("TxGen: Ligado à SHM da Transaction Pool (%d transações)", pool_size);
-}
-
 
 sem_t* init_semaphore(const char* name) {
     sem_t* sem = sem_open(name, 0);
@@ -51,7 +30,7 @@ sem_t* init_semaphore(const char* name) {
 
 int main(int argc, char *argv[]) {
     log_init("DEIChain_log.txt");
-    load_config("config.cfg", &config);
+    load_config("config.cfg", &global_config);
 
     if (argc != 3) {
         log_message("ERROR: Incorrect usage. Syntax: %s <reward 1-3> <sleep_time_ms 200-3000>", argv[0]);
@@ -80,7 +59,7 @@ int main(int argc, char *argv[]) {
     log_message("TxGen started with reward = %d and sleep_time = %d ms", reward, sleep_time);
 
     // Liga à memória partilhada da transaction pool
-    init_tx_pool_shm(config.pool_size);
+    open_tx_pool_memory(global_config.pool_size);
     sem_t* sem_mutex = init_semaphore("/sem_mutex");
     sem_t* sem_empty = init_semaphore("/sem_empty");
     sem_t* sem_full  = init_semaphore("/sem_full");
@@ -102,10 +81,12 @@ int main(int argc, char *argv[]) {
         sem_wait(sem_empty); // Enquanto houver espaçoes livres
         sem_wait(sem_mutex); // Lock para acesso à região crítica
         // Publica transação na primeira posição livre da pool
-        for (int i = 0; i < config.pool_size; i++) {
-            if (tx_pool->transactions_pending_set[i].empty) {
-                tx_pool->transactions_pending_set[i] = t;
-                tx_pool->transactions_pending_set[i].empty = 0;
+        TransactionPool* pool = (TransactionPool*)tx_pool_ptr;
+        
+        for (int i = 0; i < pool->pool_size; i++) {
+            if (tx_pool_ptr->transactions_pending_set[i].empty) {
+                tx_pool_ptr->transactions_pending_set[i] = t;
+                tx_pool_ptr->transactions_pending_set[i].empty = 0;
 
                 log_message("TxGen: Inserida transação %d no slot %d", t.id, i);
                 break;
